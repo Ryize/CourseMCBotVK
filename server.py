@@ -1,37 +1,35 @@
-from utils import VkBot, KeyboardMixin, APIBackend
+import re
+from datetime import date
+
+from utils import VkBot, KeyboardMixin, APIBackendMixin
 from config import PAGE_1, PAGE_2
 
 
-class Server(VkBot, KeyboardMixin):
+class Server(VkBot):
 
     def __init__(self, *args, **kwargs):
-        self.__api = APIBackend(**kwargs)
-        super().__init__(**kwargs)
-
-    def command_help(self, send_id: int) -> None:
-        message = ''
-        for command in self.commands:
-            message += command + ': ' + self.commands[command]['comment'] + '\n'
-        self.send_msg(send_id, message=message)
+        super().__init__(*args, **kwargs)
 
     def command_ping(self, send_id: int) -> None:
         self.send_msg(send_id, message='Понг!')
 
     def command_schedule(self, send_id: int) -> None:
-        schedule = self.__api.get(PAGE_2)
+        key_splitter = '🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥\n\n👉 '
+        key_dict = ('theme', 'weekday', 'lesson_materials')
+        date_key_splitter = ('weekday')
 
-        self.send_msg(send_id, message=schedule, keyboard=self.get_standart_keyboard())
+        username = self.get_user_by_id(str(send_id))
+        schedules_with_html = self.post(PAGE_2+'get_by_username/', json=True, data={'username': username})
+        schedules = self.remove_html(schedules_with_html, key_dict=key_dict, line_splitter=key_splitter, date_key_splitter=date_key_splitter)
+
+        self.send_msg(send_id, message='Последние четыре расписания👇👇👇')
+        self.send_msg(send_id, message=schedules, keyboard=self.get_standart_keyboard())
+        self.send_msg(send_id, message='Сайт с полным расписанием: coursemc.space')
 
     def command_hide_keyboard(self, send_id: int):
-        if not self._LoginManager.login_required(str(send_id)):
-            self.send_msg(send_id, message='Вы не авторизованны!', keyboard=self.hide_keyboard())
-            return False
         self.send_msg(send_id, message='Клавиатура скрыта!', keyboard=self.hide_keyboard())
 
     def command_return_keyboard(self, send_id: int):
-        if not self._LoginManager.login_required(str(send_id)):
-            self.send_msg(send_id, message='Вы не авторизованны!', keyboard=self.hide_keyboard())
-            return False
         self.send_msg(send_id, message='✌️Вернул вам клавиатуру!', keyboard=self.get_standart_keyboard())
 
     def command_login(self, send_id: int):
