@@ -1,4 +1,5 @@
 import locale
+import sys
 from datetime import date
 from typing import Union
 
@@ -111,8 +112,10 @@ class APIBackendMixin:
             data = self.__to_json(data)
         return data
 
-    def remove_html(self, entry_list: list, key_dict: tuple = (), line_splitter: str = '\n', exclude_key_splitter: tuple = (), date_key_splitter: tuple = ()) -> str:
+    def remove_html(self, entry_list: list, key_dict: tuple = (), line_splitter: str = '\n',
+                    exclude_key_splitter: tuple = (), date_key_splitter: tuple = ()) -> str:
         schedules_str = ''
+        entry_list.reverse()
         for key, value in enumerate(entry_list):
             for i, j in enumerate(key_dict):
                 if i + 1 == len(key_dict):
@@ -155,7 +158,7 @@ class KeyboardMixin(VkKeyboard):
 
     def get_help(self):
         keyboard = VkKeyboard()
-        keyboard.add_button(label='/help', color=VkKeyboardColor.SECONDARY)
+        keyboard.add_button(label='🔎Помощь', color=VkKeyboardColor.POSITIVE)
         return keyboard
 
 
@@ -166,7 +169,7 @@ class BaseStarter:
         self.__vk = vk_api.VkApi(token=api_token)
 
         # Для использования Long Poll API
-        self.__long_poll = VkBotLongPoll(self.__vk, group_id)
+        self._long_poll = VkBotLongPoll(self.__vk, group_id)
 
         # Для вызова методов vk_api
         self._vk_api = self.__vk.get_api()
@@ -182,21 +185,17 @@ class BaseStarter:
 
         super().__init__(*args, **kwargs)
 
-    def start(self, commands: dict, debug: bool = None) -> None:
+    def start(self, commands: dict) -> None:
         """ Запуск бота """
-        print('Я запущен!')
-
-        if (self.debug != debug) and (debug is not None):
-            self.debug = debug
 
         self.commands = commands
-        for event in self.__long_poll.listen():  # Слушаем сервер
+        for event in self._long_poll.listen():  # Слушаем сервер
 
             # Пришло новое сообщение
             if event.type == VkBotEventType.MESSAGE_NEW:
                 self.__command_starter(event=event)
 
-    def __command_starter(self, event: VkBotMessageEvent) -> None:
+    def _command_starter(self, event: VkBotMessageEvent) -> None:
         chat_id = event.object.peer_id
         text_in_msg = event.object.text
 
@@ -213,7 +212,7 @@ class BaseStarter:
                                            keyboard=KeyboardMixin().get_help().get_keyboard())
             except CommandStopError:
                 self._vk_api.messages.send(peer_id=chat_id,
-                                           message='👮‍Данная команда сейчас не доступна! /help',
+                                           message='👮Данная команда сейчас не доступна! /help',
                                            random_id=get_random_id(),
                                            keyboard=KeyboardMixin().get_help().get_keyboard())
             if (command.lower() == text_in_msg.lower()) or param:
@@ -222,10 +221,10 @@ class BaseStarter:
                 if self.debug:
                     requested_function(chat_id)
                 else:
-                    try:
-                        requested_function(chat_id)
-                    except Exception as exc:
-                        print('Произошла ошибка!\nДетали:', exc)
+                    requested_function(chat_id)
+
+    def __error_handler(self, exc):
+        print(f'Произошла ошибка: {exc}!')
 
     def __get_args_command(self, command, text_in_msg) -> Union[bool, str]:
         command_args = command.split(' *')[1:]
@@ -247,10 +246,12 @@ class BaseStarter:
             self._command_args = command
             return command
 
+
 class VkBot(BaseStarter, LoginManagerMixin, APIBackendMixin, KeyboardMixin):
 
     def __init__(self, *args, **kwargs):
-        locale.setlocale(locale.LC_TIME, 'ru_RU.UTF-8') # the ru locale is installed
+        locale.setlocale(locale.LC_TIME, 'ru_RU.UTF-8')  # the ru locale is installed
+        self.admins = []
         super().__init__(*args, **kwargs)
 
     def send_msg(self, send_id: int, message: str, keyboard=None) -> None:
@@ -273,16 +274,59 @@ class VkBot(BaseStarter, LoginManagerMixin, APIBackendMixin, KeyboardMixin):
         """ Получаем имя пользователя"""
         return self._vk_api.users.get(user_id=user_id)[0]['last_name']
 
+    def get_full_name(self, send_id: int) -> str:
+        return '{} {}'.format(self.get_user_name(send_id), self.get_user_last_name(send_id))
+
     def get_user_id(self, user_id: int) -> int:
         """ Получаем id пользователя"""
         return self._vk_api.users.get(user_id=user_id)[0]['id']
 
+    def send_admin_msg(self, msg):
+        for admin in self.admins:
+            self.send_msg(admin, message=msg)
+
     def command_help(self, send_id: int) -> None:
         message = ''
-        print("!")
         for command in self.commands:
             command_not_param = command.split(' *')[0]
             if not command.count('*nshow'):
                 message += command_not_param + ': ' + self.commands[command]['comment'] + '\n\n'
         self.send_msg(send_id, message=message, keyboard=self.get_standart_keyboard())
+
+    def command_killbot(self, send_id: int):
+        if send_id in self.admins:
+            login = self.authenticate(str(send_id))[1]
+            self.send_admin_msg(f'😈Бот успешно остановлен, Администратором {login}!')
+            sys.exit()
+
+    def start(self, commands: dict, debug: bool = None) -> None:
+        """ Запуск бота """
+        print('Я запущен!')
+
+        if (self.debug != debug) and (debug is not None):
+            self.debug = debug
+
+        self.commands = commands
+        for event in self._long_poll.listen():  # Слушаем сервер
+
+            # Пришло новое сообщение
+            if event.type == VkBotEventType.MESSAGE_NEW:
+                if debug:
+                    self._command_starter(event=event)
+
+                try:
+                    self._command_starter(event=event)
+                except Exception as exc:
+                    send_id = event.object.peer_id
+                    text_message = event.object.text
+                    username = '\n👤Имя пользователя: {}\n📝Текст сообщения: {}'.format(self.get_full_name(send_id),
+                                                                                        text_message)
+                    print(event)
+                    self.__error_handler(exc=exc, any=username)
+                    self.send_msg(send_id,
+                                  message='🆘На сервере произошла ошибка🆘\nМы уже оповестили Администрацию об этом, приносим свои извинения💌',
+                                  keyboard=self.get_standart_keyboard())
+
+    def __error_handler(self, exc, any: str = ''):
+        self.send_admin_msg(f'❌Произошла ошибка: {exc}\n{any}')
 

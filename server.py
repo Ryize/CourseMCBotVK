@@ -22,9 +22,9 @@ class Server(VkBot):
         schedules_with_html = self.post(PAGE_2+'get_by_username/', json=True, data={'username': username})
         schedules = self.remove_html(schedules_with_html, key_dict=key_dict, line_splitter=key_splitter, date_key_splitter=date_key_splitter)
 
-        self.send_msg(send_id, message='Последние четыре расписания👇👇👇')
+        self.send_msg(send_id, message='Последние четыре расписания\n👇👇👇👇')
         self.send_msg(send_id, message=schedules, keyboard=self.get_standart_keyboard())
-        self.send_msg(send_id, message='Сайт с полным расписанием: coursemc.space')
+        self.send_msg(send_id, message='Сайт с полным расписанием:\nhttps://coursemc.space')
 
     def command_hide_keyboard(self, send_id: int):
         self.send_msg(send_id, message='Клавиатура скрыта!', keyboard=self.hide_keyboard())
@@ -34,17 +34,21 @@ class Server(VkBot):
 
     def command_login(self, send_id: int):
         command = self._text_in_msg.replace(self._command_args+' ', '')
-        login, password = command.split(', ')
-        students_data = self.__api.get(PAGE_1, json=True)
+        try:
+            login, password = command.split(', ')
+        except ValueError:
+            self.send_msg(send_id, message='⛔️Не верный формат входа!\nВводите данные в формате:\n/login Имя Пользователя, Пароль\n\n⚠️️Запятая обязательна!')
+            return None
+        students_data = self.get(PAGE_1, json=True)
 
-        if self._LoginManager.authenticate(str(send_id), login):
-            self.send_msg(send_id, message='✅Вы успешно авторизованны!', keyboard=self.get_standart_keyboard())
+        if self.authenticate(str(send_id), login):
+            self.send_msg(send_id, message='⚠️Вы уже авторизованны!', keyboard=self.get_standart_keyboard())
             return True
 
         for student_data in students_data:
             if student_data['name'] == login and student_data['password'] == password:
-                self._LoginManager.new_user(send_id, login)
-                print("!")
+                self.new_user(str(send_id), login)
+                self.send_admin_msg(f'👤Авторизован новый пользователь: {login}')
                 self.send_msg(send_id, message='✅Вы успешно авторизованны!', keyboard=self.get_standart_keyboard())
                 return True
         self.send_msg(send_id, message='❌Логин или пароль не верны!')
