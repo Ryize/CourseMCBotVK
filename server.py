@@ -22,6 +22,9 @@ class Server(VkBot):
         schedules_with_html = self.post(PAGE_2+'get_by_username/', json=True, data={'username': username})
         schedules = self.remove_html(schedules_with_html, key_dict=key_dict, line_splitter=key_splitter, date_key_splitter=date_key_splitter)
 
+        if not bool(schedules):
+            self.send_msg(send_id, message='У вас нету расписания, возможно вы ещё не обучаетесь!')
+            return None
         self.send_msg(send_id, message='Последние четыре расписания\n👇👇👇👇')
         self.send_msg(send_id, message=schedules, keyboard=self.get_standart_keyboard())
         self.send_msg(send_id, message='Сайт с полным расписанием:\nhttps://coursemc.space')

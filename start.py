@@ -3,7 +3,7 @@ from config import VK_API_TOKEN, URL, STANDART_HEAD
 if __name__ == '__main__':
     from server import Server
 
-    server = Server(api_token=VK_API_TOKEN, group_id=207629753, url=URL, standart_head=STANDART_HEAD, debug=False)
+    server = Server(api_token=VK_API_TOKEN, group_id=207629753, url=URL, standart_head=STANDART_HEAD, debug=True)
 
     server.admins = [513239285]
 
