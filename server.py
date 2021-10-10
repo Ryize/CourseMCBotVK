@@ -52,3 +52,7 @@ class Server(VkBot):
                 self.send_msg(send_id, message='✅Вы успешно авторизованны!', keyboard=self.get_standart_keyboard())
                 return True
         self.send_msg(send_id, message='❌Логин или пароль не верны!')
+
+    def command_notification(self, send_id: int):
+        text = self._text_in_msg.replace(self._command_args, '')
+        self.send_notification(text, send_id)

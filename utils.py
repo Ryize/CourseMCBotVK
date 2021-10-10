@@ -89,9 +89,6 @@ class LoginManagerMixin:
     def get_user_by_id(self, id: str):
         return self.__FileDB.get_by_value(value=id)
 
-    # def login_required(self, send_id):
-    #     return self.__FileDB.get_by_value(send_id, index=0)
-
 
 class APIBackendMixin:
     def __init__(self, url: str = 'https://127.0.0.1', standart_head: str = '/api/', *args, **kwargs):
@@ -183,6 +180,9 @@ class BaseStarter:
         # Текст сообщения
         self._text_in_msg = ''
 
+        # Список администраторов
+        self.admins = []
+
         super().__init__(*args, **kwargs)
 
     def start(self, commands: dict) -> None:
@@ -242,6 +242,12 @@ class BaseStarter:
                 raise AuthError('Вы не авторизованны!')
             return True
 
+        elif text_in_msg.find(command) != -1 and command_args.count('admin') != 0:
+            if self.__send_id in self.admins:
+                self._command_args = command
+                return command
+
+
         elif text_in_msg.find(command) != -1 and command_args.count('args'):
             self._command_args = command
             return command
@@ -251,7 +257,8 @@ class VkBot(BaseStarter, LoginManagerMixin, APIBackendMixin, KeyboardMixin):
 
     def __init__(self, *args, **kwargs):
         locale.setlocale(locale.LC_TIME, 'ru_RU.UTF-8')  # the ru locale is installed
-        self.admins = []
+        self.system_name = '[Автоматическое оповещение]'
+        self.standart_msg_block = ''
         super().__init__(*args, **kwargs)
 
     def send_msg(self, send_id: int, message: str, keyboard=None) -> None:
@@ -290,7 +297,11 @@ class VkBot(BaseStarter, LoginManagerMixin, APIBackendMixin, KeyboardMixin):
         for command in self.commands:
             command_not_param = command.split(' *')[0]
             if not command.count('*nshow'):
-                message += command_not_param + ': ' + self.commands[command]['comment'] + '\n\n'
+                if command.count('*admin'):
+                    if send_id in self.admins:
+                        message += f"{command_not_param}: {self.commands[command]['comment']}😎\n\n"
+                else:
+                    message += command_not_param + ': ' + self.commands[command]['comment'] + '\n\n'
         self.send_msg(send_id, message=message, keyboard=self.get_standart_keyboard())
 
     def command_killbot(self, send_id: int):
@@ -298,6 +309,23 @@ class VkBot(BaseStarter, LoginManagerMixin, APIBackendMixin, KeyboardMixin):
             login = self.authenticate(str(send_id))[1]
             self.send_admin_msg(f'😈Бот успешно остановлен, Администратором {login}!')
             sys.exit()
+
+    def send_notification(self, text: str, send_id: int) -> None:
+        if not bool(text):
+            text = '😅Тестовое сообщение!'
+        for user_data in FileDB().splitter():
+            try:
+                user_id = int(user_data[0])
+            except:
+                return None
+            if send_id == user_id:
+                self.send_msg(user_id,
+                          message=f'👉Ваше сообщение:\n{text}\n\n👉С припиской:\n{self.standart_msg_block}\n\n✅Успешно отправленно!',
+                          )
+            else:
+                self.send_msg(user_id,
+                              message=f'{self.system_name}: {text}\n{self.standart_msg_block}',
+                              )
 
     def start(self, commands: dict, debug: bool = None) -> None:
         """ Запуск бота """
@@ -321,7 +349,6 @@ class VkBot(BaseStarter, LoginManagerMixin, APIBackendMixin, KeyboardMixin):
                     text_message = event.object.text
                     username = '\n👤Имя пользователя: {}\n📝Текст сообщения: {}'.format(self.get_full_name(send_id),
                                                                                         text_message)
-                    print(event)
                     self.__error_handler(exc=exc, any=username)
                     self.send_msg(send_id,
                                   message='🆘На сервере произошла ошибка🆘\nМы уже оповестили Администрацию об этом, приносим свои извинения💌',
@@ -329,4 +356,3 @@ class VkBot(BaseStarter, LoginManagerMixin, APIBackendMixin, KeyboardMixin):
 
     def __error_handler(self, exc, any: str = ''):
         self.send_admin_msg(f'❌Произошла ошибка: {exc}\n{any}')
-

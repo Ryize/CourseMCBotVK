@@ -8,9 +8,13 @@ if __name__ == '__main__':
     server.admins = [513239285]
 
     COMMANDS = {
-        '/killbot *auth *nshow': {
+        '/killbot *admin': {
             'command': server.command_killbot,
             'comment': 'Остановить бота',
+        },
+        '/all *admin': {
+            'command': server.command_notification,
+            'comment': 'Отправить уведомление всем пользователям',
         },
         '/help': {
             'command': server.command_help,
