@@ -48,14 +48,18 @@ class FileDB:
 
     def get_by_value(self, value: str = '0', splitter: str = '/', index: int = None):
         return_values = []
-        for i in self.splitter(splitter):
-            if index:
-                if value == i[index]:
-                    return i
-            else:
-                for j in i:
-                    if value == j:
-                        return i
+        try:
+            for i in self.splitter(splitter):
+                if index:
+                    if value == i[index]:
+                        return_values.append(i)
+                else:
+                    for j in i:
+                        if value == j:
+                            return_values.append(i)
+        except:
+            pass
+        return return_values
 
     def __file_open(self, code: str):
         return open(self.__file_name, code)
@@ -83,8 +87,8 @@ class LoginManagerMixin:
             if user_data[1] == login:
                 return True
 
-    def new_user(self, id: str, login: str):
-        self.__FileDB.write(f'{id}/{login}')
+    def new_user(self, id: str, login: str, groups: int):
+        self.__FileDB.write(f'{id}/{login}/{groups}')
 
     def get_user_by_id(self, id: str):
         return self.__FileDB.get_by_value(value=id)
@@ -109,30 +113,12 @@ class APIBackendMixin:
             data = self.__to_json(data)
         return data
 
-    def remove_html(self, entry_list: list, key_dict: tuple = (), line_splitter: str = '\n',
-                    exclude_key_splitter: tuple = (), date_key_splitter: tuple = ()) -> str:
-        schedules_str = ''
-        entry_list.reverse()
-        for key, value in enumerate(entry_list):
-            for i, j in enumerate(key_dict):
-                if i + 1 == len(key_dict):
-                    schedules_str += re.sub(r'\<[^>]*\>', '', value[j]) + '\n'
-                elif j not in exclude_key_splitter and j not in date_key_splitter:
-                    schedules_str += re.sub(r'\<[^>]*\>', '', value[j]) + '\n👉 '
-                elif j in date_key_splitter:
-                    str_fix = list(date.fromisoformat(value[j]).strftime("%A, %d. %B %Y"))
-                    str_fix[0] = str_fix[0].upper()
-                    schedules_str += ''.join(str_fix) + '\n👉 '
-                else:
-                    schedules_str += re.sub(r'\<[^>]*\>', '', value[j]) + ' '
-            if key + 1 >= 4:
-                break
-            schedules_str += line_splitter
-        return schedules_str
-
     def __to_json(self, data):
         return json.loads(data)
 
+    @staticmethod
+    def remove_html(value):
+        return re.sub(r'\<[^>]*\>', '', value)
 
 class KeyboardMixin(VkKeyboard):
     def __init__(self, *args, **kwargs):
@@ -310,22 +296,34 @@ class VkBot(BaseStarter, LoginManagerMixin, APIBackendMixin, KeyboardMixin):
             self.send_admin_msg(f'😈Бот успешно остановлен, Администратором {login}!')
             sys.exit()
 
-    def send_notification(self, text: str, send_id: int) -> None:
+    def send_notification(self, text: str, send_id: int, users: list = []) -> None:
         if not bool(text):
             text = '😅Тестовое сообщение!'
-        for user_data in FileDB().splitter():
-            try:
-                user_id = int(user_data[0])
-            except:
-                return None
-            if send_id == user_id:
-                self.send_msg(user_id,
-                          message=f'👉Ваше сообщение:\n{text}\n\n👉С припиской:\n{self.standart_msg_block}\n\n✅Успешно отправленно!',
+        if users:
+            for user in users:
+                if isinstance(users[0], list) == 1:
+                    self.__send_notification(send_id, text, user)
+                else:
+                    self.__send_notification(send_id, text, users)
+                    break
+        else:
+            for user in FileDB().splitter():
+                self.__send_notification(send_id, text, user)
+        self.send_msg(send_id,
+                      message=f'👉Ваше сообщение:\n{text}\n\n👉С припиской:\n{self.standart_msg_block}\n\n✅Успешно отправленно!',
+                      )
+
+    def __send_notification(self, send_id: int, text: str, user_data: list):
+        try:
+            user_id = int(user_data[0])
+        except:
+            return None
+        if send_id == user_id:
+            pass
+        else:
+            self.send_msg(user_id,
+                          message=f'{self.system_name}: {text}\n{self.standart_msg_block}',
                           )
-            else:
-                self.send_msg(user_id,
-                              message=f'{self.system_name}: {text}\n{self.standart_msg_block}',
-                              )
 
     def start(self, commands: dict, debug: bool = None) -> None:
         """ Запуск бота """
@@ -339,20 +337,20 @@ class VkBot(BaseStarter, LoginManagerMixin, APIBackendMixin, KeyboardMixin):
 
             # Пришло новое сообщение
             if event.type == VkBotEventType.MESSAGE_NEW:
-                if debug:
+                if self.debug:
                     self._command_starter(event=event)
-
-                try:
-                    self._command_starter(event=event)
-                except Exception as exc:
-                    send_id = event.object.peer_id
-                    text_message = event.object.text
-                    username = '\n👤Имя пользователя: {}\n📝Текст сообщения: {}'.format(self.get_full_name(send_id),
-                                                                                        text_message)
-                    self.__error_handler(exc=exc, any=username)
-                    self.send_msg(send_id,
-                                  message='🆘На сервере произошла ошибка🆘\nМы уже оповестили Администрацию об этом, приносим свои извинения💌',
-                                  keyboard=self.get_standart_keyboard())
+                else:
+                    try:
+                        self._command_starter(event=event)
+                    except Exception as exc:
+                        send_id = event.object.peer_id
+                        text_message = event.object.text
+                        username = '\n👤Имя пользователя: {}\n📝Текст сообщения: {}'.format(self.get_full_name(send_id),
+                                                                                            text_message)
+                        self.__error_handler(exc=exc, any=username)
+                        self.send_msg(send_id,
+                                      message='🆘На сервере произошла ошибка🆘\nМы уже оповестили Администрацию об этом, приносим свои извинения💌',
+                                      keyboard=self.get_standart_keyboard())
 
     def __error_handler(self, exc, any: str = ''):
         self.send_admin_msg(f'❌Произошла ошибка: {exc}\n{any}')

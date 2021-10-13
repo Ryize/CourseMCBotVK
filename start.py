@@ -8,14 +8,6 @@ if __name__ == '__main__':
     server.admins = [513239285]
 
     COMMANDS = {
-        '/killbot *admin': {
-            'command': server.command_killbot,
-            'comment': 'Остановить бота',
-        },
-        '/all *admin': {
-            'command': server.command_notification,
-            'comment': 'Отправить уведомление всем пользователям',
-        },
         '/help': {
             'command': server.command_help,
             'comment': 'Получить список всех команд',
@@ -36,6 +28,18 @@ if __name__ == '__main__':
             'command': server.command_schedule,
             'comment': 'Получить своё расписание',
         },
+        '/wiki *args': {
+            'command': server.command_wiki,
+            'comment': 'Поиск по википедии',
+        },
+        '/пароль *args': {
+            'command': server.command_generate_password,
+            'comment': 'Генерация случайного пароля. Пример: /пароль 16 (Второй аргумент это длинна пароля, по умолчания 8 символов)',
+        },
+        '/сократить *args': {
+            'command': server.command_short_url,
+            'comment': 'Сократить ссылку. Пример: /сократить https://google.com',
+        },
         '☠️Скрыть клавиатуру *nshow': {
             'command': server.command_hide_keyboard,
             'comment': 'Получить своё расписание',
@@ -48,6 +52,22 @@ if __name__ == '__main__':
             'command': server.command_login,
             'comment': 'Авторизация, формат: /login Матвей Чекашов, 1234 (Запятую между логином и паролем ставить '
                        'ОБЯЗАТЕЛЬНО!)',
+        },
+        '/группы *admin': {
+            'command': server.command_groups,
+            'comment': 'Список всех групп',
+        },
+        '/note *admin': {
+            'command': server.command_notification,
+            'comment': 'Отправить уведомление всем пользователям',
+        },
+        '/anote *admin': {
+            'command': server.command_anotification,
+            'comment': 'Отправить уведомление всем пользователям',
+        },
+        '/killbot *admin': {
+            'command': server.command_killbot,
+            'comment': 'Остановить бота',
         },
     }
     while True:
