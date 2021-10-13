@@ -5,7 +5,7 @@ import pyshorteners
 import wikipedia
 from datetime import date
 
-from utils import VkBot, KeyboardMixin, APIBackendMixin, FileDB
+from utils import VkBot, FileDB
 from config import PAGE_1, PAGE_2, PAGE_3
 
 
