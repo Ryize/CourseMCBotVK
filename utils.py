@@ -1,15 +1,12 @@
-import locale
 import sys
-from datetime import date
-from typing import Union
-
 import requests
 import json
 import re
-from vk_api.keyboard import VkKeyboard, VkKeyboardColor
-from vk_api.bot_longpoll import VkBotEventType
 import vk_api.vk_api
 
+from typing import Union
+from vk_api.keyboard import VkKeyboard, VkKeyboardColor
+from vk_api.bot_longpoll import VkBotEventType
 from vk_api.bot_longpoll import VkBotLongPoll, VkBotMessageEvent
 from vk_api.utils import get_random_id
 
@@ -120,6 +117,7 @@ class APIBackendMixin:
     def remove_html(value):
         return re.sub(r'\<[^>]*\>', '', value)
 
+
 class KeyboardMixin(VkKeyboard):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -160,7 +158,7 @@ class BaseStarter:
         # Режим отладки(Когда он включёт ошибка будет останавливать программу
         self.debug = debug
 
-        # Команда с аргументами
+        # Аргументы команлы
         self._command_args = ''
 
         # Текст сообщения
@@ -242,7 +240,6 @@ class BaseStarter:
 class VkBot(BaseStarter, LoginManagerMixin, APIBackendMixin, KeyboardMixin):
 
     def __init__(self, *args, **kwargs):
-        locale.setlocale(0, "ru-ru")
         self.system_name = '[Автоматическое оповещение]'
         self.standart_msg_block = ''
         super().__init__(*args, **kwargs)
