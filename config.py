@@ -1,0 +1,6 @@
+VK_API_TOKEN = 'df227ef929075ff0bfb55cf86d26781ea263337017ae8682c972b8a3028e85555d9c02985c7490eb11dc5'
+URL = 'https://coursemc.space'
+STANDART_HEAD='/api/v1/'
+PAGE_1 = 'student/'
+PAGE_2 = 'schedule/'
+PAGE_3 = 'groups/'
