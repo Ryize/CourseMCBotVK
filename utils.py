@@ -242,7 +242,7 @@ class BaseStarter:
 class VkBot(BaseStarter, LoginManagerMixin, APIBackendMixin, KeyboardMixin):
 
     def __init__(self, *args, **kwargs):
-        locale.setlocale(locale.LC_TIME, 'ru_RU.UTF-8')
+        locale.setlocale(0, "ru-ru")
         self.system_name = '[Автоматическое оповещение]'
         self.standart_msg_block = ''
         super().__init__(*args, **kwargs)
