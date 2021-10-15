@@ -1,4 +1,4 @@
-from config import VK_API_TOKEN, URL, STANDART_HEAD
+from vk_learn.config import VK_API_TOKEN, URL, STANDART_HEAD
 
 if __name__ == '__main__':
     from server import Server

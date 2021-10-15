@@ -5,8 +5,9 @@ import wikipedia
 
 from datetime import date
 
-from utils import VkBot, FileDB
-from config import PAGE_1, PAGE_2, PAGE_3
+from vk_learn.core.utils import FileDB
+from vk_learn.release import VkBot
+from vk_learn.config import PAGE_1, PAGE_2, PAGE_3
 
 
 class Server(VkBot):
