@@ -282,7 +282,7 @@ class VkBot(BaseStarter, LoginManagerMixin, APIBackendMixin, KeyboardMixin):
             if not command.count('*nshow'):
                 if command.count('*admin'):
                     if send_id in self.admins:
-                        message += f"{command_not_param}: {self.commands[command]['comment']}😎\n\n"
+                        message += f"{command_not_param}: {self.commands[command]['comment']}  😎\n\n"
                 else:
                     message += command_not_param + ': ' + self.commands[command]['comment'] + '\n\n'
         self.send_msg(send_id, message=message, keyboard=self.get_standart_keyboard())

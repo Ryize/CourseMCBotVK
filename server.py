@@ -64,6 +64,11 @@ class Server(VkBot):
     def command_notification(self, send_id: int):
         text_in_msg = self._text_in_msg.replace(self._command_args, '')
         users_groups = list(text_in_msg)[1]
+        try:
+            int(users_groups)
+        except:
+            self.send_msg(send_id, message='❌ Вы не указали новр группы!')
+            return
         users = FileDB().get_by_value(value=users_groups, index=2)
         text = text_in_msg[2:]
         self.send_notification(text, send_id, users)
@@ -110,6 +115,21 @@ class Server(VkBot):
         text = self.__to_read_data(groups, key_dict, key_splitter)
         self.send_msg(send_id, message=f'👨‍🏫Все группы:\n\n👉{text}В настоящий момент это все группы!')
 
+    def command_who_i(self, send_id: int):
+        user, group = self._get_user_group(str(send_id))
+        text = f"👀 Вы авторизованны как: {user[0][1]}\n👨‍🎓 Вы обучаетесь в группе: {group['title']}\n📝 Ваш цифровой id: {user[0][0]}"
+        self.send_msg(send_id, message=f'👤Информация о вас:\n\n{text}')
+
+    def command_get_users_data(self, send_id: int):
+        data = FileDB().read()
+        self.send_msg(send_id, message=f'🔒 Все данные:\n\n{data}')
+
+    def _get_user_group(self, user_id: str):
+        groups = self.get(PAGE_3, json=True)
+        user = FileDB().get_by_value(value=user_id, index=0)
+        for group in groups:
+            if group['id'] == int(user[0][2]):
+                return user, group
 
     def __to_read_data(self, entry_list: list, key_dict: tuple = (), line_splitter: str = '\n',
                     exclude_key_splitter: tuple = (), date_key_splitter: tuple = (), max_size: int = None) -> str:

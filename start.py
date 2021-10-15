@@ -20,6 +20,10 @@ if __name__ == '__main__':
             'command': server.command_help,
             'comment': 'Получить список всех команд',
         },
+        '/я *auth': {
+            'command': server.command_who_i,
+            'comment': 'Получить информацию про свой аккаунт',
+        },
         '⚾️Пинг': {
             'command': server.command_ping,
             'comment': 'Проверить работоспособность бота',
@@ -63,6 +67,10 @@ if __name__ == '__main__':
         },
         '/anote *admin': {
             'command': server.command_anotification,
+            'comment': 'Отправить уведомление всем пользователям',
+        },
+        '/Получить данные *admin': {
+            'command': server.command_get_users_data,
             'comment': 'Отправить уведомление всем пользователям',
         },
         '/killbot *admin': {
