@@ -26,7 +26,7 @@ if __name__ == '__main__':
         },
         '/helpop *auth *args': {
             'command': server.command_helpop,
-            'comment': 'Сократить ссылку. Пример: /сократить https://google.com',
+            'comment': 'Отправить вопрос или пожелания Администрации',
         },
         '⚾️Пинг': {
             'command': server.command_ping,
