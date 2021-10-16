@@ -1,4 +1,4 @@
-VK_API_TOKEN = 'df227ef929075ff0bfb55cf86d26781ea263337017ae8682c972b8a3028e85555d9c02985c7490eb11dc5'
+VK_T = '921092f522aea5689f99a01588231d65bceec15a8a7c8acc23eadd52b27e75f0b67aa55dff737e24e29ca'
 URL = 'https://coursemc.space'
 STANDART_HEAD='/api/v1/'
 PAGE_1 = 'student/'
