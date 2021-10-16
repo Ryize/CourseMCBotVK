@@ -3,7 +3,7 @@ from vk_learn.config import VK_T, URL, STANDART_HEAD
 if __name__ == '__main__':
     from server import Server
 
-    server = Server(api_token=VK_T, group_id=207629753, url=URL, standart_head=STANDART_HEAD, debug=False)
+    server = Server(api_token=VK_T, group_id=207629753, url=URL, standart_head=STANDART_HEAD, debug=True)
 
     server.admins = [513239285]
 
@@ -23,6 +23,10 @@ if __name__ == '__main__':
         '/я *auth': {
             'command': server.command_who_i,
             'comment': 'Получить информацию про свой аккаунт',
+        },
+        '/helpop *auth *args': {
+            'command': server.command_helpop,
+            'comment': 'Сократить ссылку. Пример: /сократить https://google.com',
         },
         '⚾️Пинг': {
             'command': server.command_ping,

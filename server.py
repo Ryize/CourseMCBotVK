@@ -117,7 +117,7 @@ class Server(VkBot):
         self.send_msg(send_id, message=f'👨‍🏫Все группы:\n\n👉{text}В настоящий момент это все группы!')
 
     def command_who_i(self, send_id: int):
-        user, group = self._get_user_group(str(send_id))
+        user, group = self._get_user_and_group(str(send_id))
         text = f"👀 Вы авторизованны как: {user[0][1]}\n👨‍🎓 Вы обучаетесь в группе: {group['title']}\n📝 Ваш цифровой id: {user[0][0]}"
         self.send_msg(send_id, message=f'👤Информация о вас:\n\n{text}')
 
@@ -125,7 +125,17 @@ class Server(VkBot):
         data = FileDB().read()
         self.send_msg(send_id, message=f'🔒 Все данные:\n\n{data}')
 
-    def _get_user_group(self, user_id: str):
+    def command_helpop(self, send_id: int):
+        text_in_msg = self._text_in_msg.replace(self._command_args, '').lstrip()
+        if not text_in_msg:
+            self.send_msg(send_id,
+                          message=f'⛔️ Ваше обращение не может быть пустым!')
+            return
+        self.send_msg(send_id, message=f'✅ Ваше обращение принято.\nАдминистрация рассмотрит его и ответит Вам в ближайшее время')
+        user, group = self._get_user_and_group(str(send_id))
+        self.send_admin_msg(f"👤 Пользователь {user[0][1]}, из группы: {group['title']}\nНаписал: {text_in_msg}\n\n📞Для ответа ему используйте такой id: {send_id}")
+
+    def _get_user_and_group(self, user_id: str):
         groups = self.get(PAGE_3, json=True)
         user = FileDB().get_by_value(value=user_id, index=0)
         for group in groups:

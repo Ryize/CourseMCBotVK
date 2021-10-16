@@ -80,7 +80,7 @@ class LoginManagerMixin:
         if not login:
             return user_data
         if user_data:
-            if user_data[1] == login:
+            if user_data[0][1] == login:
                 return True
 
     def new_user(self, id: str, login: str, groups: int):
@@ -199,6 +199,7 @@ class BaseStarter:
                                            random_id=get_random_id(),
                                            keyboard=KeyboardMixin().get_help().get_keyboard())
             if (command.lower() == text_in_msg.lower()) or param:
+                print("!!!")
                 self.command = command
                 requested_function = self.commands[command]['command']
                 if self.debug:
@@ -213,26 +214,28 @@ class BaseStarter:
         command_args = command.split(' *')[1:]
         command = command.split(' *')[0]
 
+        return_data = []
         if text_in_msg.find(command) != -1 and command_args.count('stop'):
             self._command_args = command
             raise CommandStopError('Эта команда сейчас не работает!')
 
-        elif text_in_msg.find(command) != -1 and command_args.count('nshow') != 0:
-            return command
+        if text_in_msg.find(command) != -1 and command_args.count('nshow') != 0:
+            return_data.append(True)
 
-        elif text_in_msg.find(command) != -1 and command_args.count('auth') != 0:
+        if text_in_msg.find(command) != -1 and command_args.count('auth') != 0:
             if not LoginManagerMixin().authenticate(str(self.__send_id)):
                 raise AuthError('Вы не авторизованны!')
-            return True
+            return_data.append(True)
 
-        elif text_in_msg.find(command) != -1 and command_args.count('admin') != 0:
+        if text_in_msg.find(command) != -1 and command_args.count('admin') != 0:
             if self.__send_id in self.admins:
                 self._command_args = command
-                return command
+                return_data.append(command)
 
 
-        elif text_in_msg.find(command) != -1 and command_args.count('args'):
+        if text_in_msg.find(command) != -1 and command_args.count('args'):
             self._command_args = command
-            return command
+            return_data.append(command)
+        return return_data
 
 
