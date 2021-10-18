@@ -141,6 +141,8 @@ class VkBot(BaseStarter, LoginManagerMixin, APIBackendMixin, KeyboardMixin):
                         self.send_msg(send_id,
                                       message='🆘На сервере произошла ошибка🆘\nМы уже оповестили Администрацию об этом, приносим свои извинения💌',
                                       keyboard=self.get_standart_keyboard())
+    def get_command_text(self, command, command_args):
+        return''.join(list(command.replace(command_args, ''))[1:]).lstrip()
 
     def __error_handler(self, exc, any: str = ''):
         self.send_admin_msg(f'❌Произошла ошибка: {exc}\n{any}')

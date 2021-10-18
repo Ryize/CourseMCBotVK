@@ -46,7 +46,7 @@ class Server(VkBot):
         self.send_msg(send_id, message='✌️Вернул вам клавиатуру!', keyboard=self.get_standart_keyboard())
 
     def command_login(self, send_id: int):
-        command = self._text_in_msg.replace(self._command_args + ' ', '')
+        command = self.get_command_text(self._text_in_msg, self._command_args)
         try:
             login, password = command.split(', ')
         except ValueError:
@@ -69,7 +69,7 @@ class Server(VkBot):
         self.send_msg(send_id, message='❌Логин или пароль не верны!')
 
     def command_wiki(self, send_id: int):
-        text_in_msg = self._text_in_msg.replace(self._command_args, '')
+        text_in_msg = self.get_command_text(self._text_in_msg, self._command_args)
         wikipedia.set_lang("ru")
         try:
             text = f'{wikipedia.summary(text_in_msg)}\n\nПолная статья: {wikipedia.page(text_in_msg).url}'
@@ -91,7 +91,7 @@ class Server(VkBot):
         self.send_msg(send_id, message=text)
 
     def command_short_url(self, send_id: int):
-        text_in_msg = self._text_in_msg.replace(self._command_args, '')
+        text_in_msg = self.get_command_text(self._text_in_msg, self._command_args)
 
         short_url = pyshorteners.Shortener().clckru.short(text_in_msg)
         if len(short_url) > 100:
@@ -112,7 +112,7 @@ class Server(VkBot):
         self.send_msg(send_id, message=f'🔒 Все данные:\n\n{data}')
 
     def command_helpop(self, send_id: int):
-        text_in_msg = self._text_in_msg.replace(self._command_args, '').lstrip()
+        text_in_msg = self.get_command_text(self._text_in_msg, self._command_args)
         if not text_in_msg:
             self.send_msg(send_id,
                           message=f'⛔️ Ваше обращение не может быть пустым!')
@@ -134,6 +134,7 @@ class Server(VkBot):
     def command_notification(self, send_id: int):
         text_in_msg = self._text_in_msg.replace(self._command_args, '')
         users_groups = list(text_in_msg)[2]
+        text_in_msg = self.get_command_text(self._text_in_msg, self._command_args)
         try:
             int(users_groups)
         except:
@@ -144,7 +145,7 @@ class Server(VkBot):
         self.send_notification(text, send_id, users)
 
     def command_anotification(self, send_id: int):
-        text = self._text_in_msg.replace(self._command_args, '')
+        text = self.get_command_text(self._text_in_msg, self._command_args)
         for user in FileDB().splitter():
             self.send_notification(text, send_id, user)
 
