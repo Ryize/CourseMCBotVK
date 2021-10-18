@@ -219,7 +219,7 @@ class BaseStarter:
                                            message='👮Данная команда сейчас не доступна! /help',
                                            random_id=get_random_id(),
                                            keyboard=KeyboardMixin().get_help().get_keyboard())
-            if (command.lower() == text_in_msg.lower()) or param:
+            if (command.lower () == text_in_msg.lower()) or param:
                 self.command = command
                 requested_function = self.commands[command]['command']
                 if self.debug:
@@ -230,11 +230,16 @@ class BaseStarter:
     def __error_handler(self, exc):
         print(f'Произошла ошибка: {exc}!')
 
-    def __get_args_command(self, command, text_in_msg) -> Union[bool, str]:
+    def __get_args_command(self, command: str, text_in_msg: str) -> Union[bool, str]:
         command_args = command.split(' *')[1:]
         command = command.split(' *')[0]
 
         return_data = []
+        try:
+            text_in_msg = text_in_msg.split('/')[1]
+            command = command.replace('/', '')
+        except:
+            pass
         if text_in_msg.find(command) != -1 and command_args.count('stop'):
             self._command_args = command
             raise CommandStopError('Эта команда сейчас не работает!')

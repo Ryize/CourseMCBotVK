@@ -137,7 +137,7 @@ class Server(VkBot):
         try:
             int(users_groups)
         except:
-            self.send_msg(send_id, message='❌ Вы не указали новр группы!')
+            self.send_msg(send_id, message='❌ Вы не указали номер группы!')
             return
         users = FileDB().get_by_value(value=users_groups, index=2)
         text = text_in_msg[2:]
@@ -145,7 +145,8 @@ class Server(VkBot):
 
     def command_anotification(self, send_id: int):
         text = self._text_in_msg.replace(self._command_args, '')
-        self.send_notification(text, send_id)
+        for user in FileDB().splitter():
+            self.send_notification(text, send_id, user)
 
     # Utility functions
     def _get_user_and_group(self, user_id: str):
