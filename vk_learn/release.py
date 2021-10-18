@@ -7,6 +7,11 @@ from vk_learn.core.utils import BaseStarter, LoginManagerMixin, APIBackendMixin,
 
 
 class VkBot(BaseStarter, LoginManagerMixin, APIBackendMixin, KeyboardMixin):
+    """
+    A class that has collected all the basic elements for creating a fully functional bot
+    (Launching, working with an account, working with an external API, working with a keyboard).
+    Implemented basic commands needed in most bots
+    """
 
     def __init__(self, *args, **kwargs):
         self.system_name = '[Автоматическое оповещение]'
@@ -56,6 +61,20 @@ class VkBot(BaseStarter, LoginManagerMixin, APIBackendMixin, KeyboardMixin):
                     message += command_not_param + ': ' + self.commands[command]['comment'] + '\n\n'
         self.send_msg(send_id, message=message, keyboard=self.get_standart_keyboard())
 
+    def command_msg(self, send_id: int):
+        text_in_msg = self._text_in_msg.replace(self._command_args, '')
+        user_id = text_in_msg.split()[0]
+        msg = ' '.join(text_in_msg.split()[1:])
+        username = FileDB().get_by_value(value=user_id, index=0)[0][1]
+        if not self.__send_notification(send_id, msg, [user_id], system_name=f'[{username}]'):
+            self.send_msg(send_id,
+                          message=f'⛔️ Вы указали не верный id пользователя!',
+                          )
+            return
+        self.send_msg(send_id,
+                      message=f'✅️ Сообщение пользователю: {username} - успешно отправлено!',
+                      )
+
     def command_killbot(self, send_id: int):
         if send_id in self.admins:
             login = self.authenticate(str(send_id))[1]
@@ -73,23 +92,28 @@ class VkBot(BaseStarter, LoginManagerMixin, APIBackendMixin, KeyboardMixin):
                     self.__send_notification(send_id, text, users)
                     break
         else:
-            for user in FileDB().splitter():
-                self.__send_notification(send_id, text, user)
+            self.send_msg(send_id,
+                          message=f'⛔️ Группы с таким номером нету!',
+                          )
+            return
         self.send_msg(send_id,
                       message=f'👉Ваше сообщение:\n{text}\n\n👉С припиской:\n{self.standart_msg_block}\n\n✅Успешно отправленно!',
                       )
 
-    def __send_notification(self, send_id: int, text: str, user_data: list):
+    def __send_notification(self, send_id: int, text: str, user_data: list, system_name: str = None):
+        if self.system_name == system_name or not system_name:
+            system_name = self.system_name
         try:
             user_id = int(user_data[0])
         except:
-            return None
+            return
         if send_id == user_id:
-            pass
+            return False
         else:
             self.send_msg(user_id,
-                          message=f'{self.system_name}: {text}\n{self.standart_msg_block}',
+                          message=f'{system_name}: {text}\n{self.standart_msg_block}',
                           )
+        return True
 
     def start(self, commands: dict, debug: bool = None) -> None:
         """ Запуск бота """
@@ -100,16 +124,16 @@ class VkBot(BaseStarter, LoginManagerMixin, APIBackendMixin, KeyboardMixin):
 
         self.commands = commands
         for event in self._long_poll.listen():  # Слушаем сервер
-
             # Пришло новое сообщение
             if event.type == VkBotEventType.MESSAGE_NEW:
+                send_id = event.object.peer_id
                 if self.debug:
-                    self._command_starter(event=event)
+                    if send_id in self.admins:
+                        self._command_starter(event=event)
                 else:
                     try:
                         self._command_starter(event=event)
                     except Exception as exc:
-                        send_id = event.object.peer_id
                         text_message = event.object.text
                         username = '\n👤Имя пользователя: {}\n📝Текст сообщения: {}'.format(self.get_full_name(send_id),
                                                                                             text_message)

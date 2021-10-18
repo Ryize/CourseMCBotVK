@@ -13,6 +13,10 @@ from vk_learn.core.exceptions import AuthError, CommandStopError
 
 
 class FileDB:
+    """
+    Сlass that implements the basic logic of working with files, writing, reading, splitting into lists by element, etc.
+    this class covers the need for basic file handling
+    """
     def __init__(self, file_name: str = 'test.txt', *args, **kwargs):
         self.__file_name = file_name
         super().__init__(*args, **kwargs)
@@ -70,6 +74,10 @@ class FileDB:
 
 
 class LoginManagerMixin:
+    """
+    Logic of basic work with users, authorization, creating a new user, getting a user by id of VK.
+    For work, another class is used FileDB
+    """
     def __init__(self, file_name: str = 'test.txt', *args, **kwargs):
         self.__FileDB = FileDB(file_name)
         super().__init__(*args, **kwargs)
@@ -91,6 +99,10 @@ class LoginManagerMixin:
 
 
 class APIBackendMixin:
+    """
+    The logic of working with the API, the logic of receiving data by get, post requests,
+    and also converting them to json and back
+    """
     def __init__(self, url: str = 'https://127.0.0.1', standart_head: str = '/api/', *args, **kwargs):
         self.url = url
         self.standart_head = standart_head
@@ -118,6 +130,10 @@ class APIBackendMixin:
 
 
 class KeyboardMixin(VkKeyboard):
+    """
+    Working with the VK keyboard, implemented methods for
+    getting, hiding the keyboard and showing auxiliary commands
+    """
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -143,6 +159,11 @@ class KeyboardMixin(VkKeyboard):
 
 
 class BaseStarter:
+    """
+    The main class for the work of the VK bot.
+    Implemented the logic for launching the bot,
+    automatically catching errors, applying command parameters, etc.
+    """
     def __init__(self, api_token, group_id, debug: bool = False, *args, **kwargs):
 
         # Для Long Poll
@@ -199,7 +220,6 @@ class BaseStarter:
                                            random_id=get_random_id(),
                                            keyboard=KeyboardMixin().get_help().get_keyboard())
             if (command.lower() == text_in_msg.lower()) or param:
-                print("!!!")
                 self.command = command
                 requested_function = self.commands[command]['command']
                 if self.debug:
