@@ -100,9 +100,12 @@ class Server(VkBot):
         self.send_msg(send_id, message=f'✈️Короткая ссылка: {short_url}')
 
     def command_who_i(self, send_id: int):
-        user, group = self._get_user_and_group(str(send_id))
-        text = f"👀 Вы авторизованны как: {user[0][1]}\n👨‍🎓 Вы обучаетесь в группе: {group['title']}\n📝 Ваш цифровой id: {user[0][0]}"
-        self.send_msg(send_id, message=f'👤Информация о вас:\n\n{text}')
+        try:
+            user, group = self._get_user_and_group(str(send_id))
+            text = f"👤Информация о вас:\n\n👀 Вы авторизованны как: {user[0][1]}\n👨‍🎓 Вы обучаетесь в группе: {group['title']}\n📝 Ваш цифровой id: {user[0][0]}"
+        except:
+            text = f"❌ Ваш аккаунт не верно настроен, обратитесь к своему учителю!"
+        self.send_msg(send_id, message=f'{text}')
 
     def command_get_users_data(self, send_id: int):
         data = FileDB().read()
