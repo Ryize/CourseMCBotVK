@@ -234,6 +234,8 @@ class BaseStarter:
         command_args = command.split(' *')[1:]
         command = command.split(' *')[0]
 
+        self._command_args = command
+
         return_data = []
         try:
             text_in_msg = text_in_msg.split('/')[1]

@@ -133,7 +133,7 @@ class Server(VkBot):
 
     def command_notification(self, send_id: int):
         text_in_msg = self._text_in_msg.replace(self._command_args, '')
-        users_groups = list(text_in_msg)[1]
+        users_groups = list(text_in_msg)[2]
         try:
             int(users_groups)
         except:
