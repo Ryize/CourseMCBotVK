@@ -63,9 +63,10 @@ class VkBot(BaseStarter, LoginManagerMixin, APIBackendMixin, KeyboardMixin):
 
     def command_msg(self, send_id: int):
         text_in_msg = self._text_in_msg.replace(self._command_args, '')
-        user_id = text_in_msg.split()[0]
+        user_id = text_in_msg.split()[1]
         msg = ' '.join(text_in_msg.split()[1:])
-        username = FileDB().get_by_value(value=user_id, index=0)[0][1]
+        username = FileDB().get_by_value(value=user_id, index=0)
+        username = username[0][1]
         if not self.__send_notification(send_id, msg, [user_id], system_name=f'[{username}]'):
             self.send_msg(send_id,
                           message=f'⛔️ Вы указали не верный id пользователя!',

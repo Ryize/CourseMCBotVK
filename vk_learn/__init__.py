@@ -5,3 +5,4 @@ __version__ = '1.2.1' #Fix bug in command /я
 __version__ = '1.2.2' #Fix bug in _command_starter, rename command /note to /gnote
 __version__ = '1.2.3' #Fix bug in command /gnote
 __version__ = '1.2.4' #Add func get_command_text, fix bug in command with args
+__version__ = '1.2.5' #Fix bug in command /msg
