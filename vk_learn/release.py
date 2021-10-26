@@ -35,7 +35,7 @@ class VkBot(BaseStarter, LoginManagerMixin, APIBackendMixin, KeyboardMixin):
         return self._vk_api.users.get(user_id=user_id)[0]['first_name']
 
     def get_user_last_name(self, user_id: int) -> str:
-        """ Получаем имя пользователя"""
+        """ Получаем фамилию пользователя"""
         return self._vk_api.users.get(user_id=user_id)[0]['last_name']
 
     def get_full_name(self, send_id: int) -> str:
