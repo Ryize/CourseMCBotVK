@@ -177,4 +177,6 @@ class Server(VkBot):
                 else:
                     schedules_str += self.remove_html(value[j]) + ' '
             schedules_str += line_splitter
+            if key > 4:
+                break
         return schedules_str
