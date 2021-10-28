@@ -7,3 +7,4 @@ __version__ = '1.2.3' #Fix bug in command /gnote
 __version__ = '1.2.4' #Add func get_command_text, fix bug in command with args
 __version__ = '1.2.5' #Fix bug in command /msg
 __version__ = '1.2.6' #Fix bug in command /msg (Bug in user_id)
+__version__ = '1.2.7' #Fix bug in /schedule
