@@ -147,7 +147,11 @@ class Server(VkBot):
     def command_anotification(self, send_id: int):
         text = self.get_command_text(self._text_in_msg, self._command_args)
         for user in FileDB().splitter():
-            self.send_notification(text, send_id, user)
+            try:
+                self.send_notification(text, send_id, user)
+            except:
+                print("!")
+                continue
 
     # Utility functions
     def _get_user_and_group(self, user_id: str):
@@ -176,7 +180,4 @@ class Server(VkBot):
                     schedules_str += ''.join(str_fix) + '\n👉 '
                 else:
                     schedules_str += self.remove_html(value[j]) + ' '
-            schedules_str += line_splitter
-            if key > 4:
-                break
-        return schedules_str
+            schedules_str
