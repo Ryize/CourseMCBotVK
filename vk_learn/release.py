@@ -97,9 +97,7 @@ class VkBot(BaseStarter, LoginManagerMixin, APIBackendMixin, KeyboardMixin):
                           message=f'⛔️ Группы с таким номером нету!',
                           )
             return
-        self.send_msg(send_id,
-                      message=f'👉Ваше сообщение:\n{text}\n\n👉С припиской:\n{self.standart_msg_block}\n\n✅Успешно отправленно!',
-                      )
+    
 
     def __send_notification(self, send_id: int, text: str, user_data: list, system_name: str = None):
         if self.system_name == system_name or not system_name:
