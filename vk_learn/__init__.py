@@ -10,3 +10,4 @@ __version__ = '1.2.6' #Fix bug in command /msg (Bug in user_id)
 __version__ = '1.2.7' #Fix bug in command /schedule
 __version__ = '1.2.8' #Fix bug in command /anote
 __version__ = '1.2.9' #Fix bug in command /anote, change functions self_notification
+__version__ = '1.2.10' #Fix bug in schedule
