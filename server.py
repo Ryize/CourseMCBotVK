@@ -177,7 +177,7 @@ class Server(VkBot):
                 if i + 1 == len(key_dict):
                     schedules_str += self.remove_html(value[j]) + '\n'
                 elif j not in exclude_key_splitter and j not in date_key_splitter:
-                    schedules_str += f'{self.remove_html(str(value[j]))}\n\n{line_splitter} '
+                    schedules_str += f'\n\n{line_splitter}{self.remove_html(str(value[j]))}\n👉 '
                 elif j in date_key_splitter:
                     str_fix = list(date.fromisoformat(value[j]).strftime("%A, %d. %B %Y"))
                     str_fix[0] = str_fix[0].upper()
