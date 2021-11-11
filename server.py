@@ -169,20 +169,19 @@ class Server(VkBot):
     def __to_read_data(self, entry_list: list, key_dict: tuple = (), line_splitter: str = '\n',
                        exclude_key_splitter: tuple = (), date_key_splitter: tuple = (), max_size: int = None) -> str:
         schedules_str = ''
-        entry_list.reverse()
         if max_size:
-            entry_list = entry_list[:-max_size]
+            entry_list = entry_list[-max_size:]
         entry_list.reverse()
         for key, value in enumerate(entry_list):
             for i, j in enumerate(key_dict):
                 if i + 1 == len(key_dict):
                     schedules_str += self.remove_html(value[j]) + '\n'
                 elif j not in exclude_key_splitter and j not in date_key_splitter:
-                    schedules_str += self.remove_html(str(value[j])) + '\n👉 '
+                    schedules_str += f'{self.remove_html(str(value[j]))}\n\n{line_splitter} '
                 elif j in date_key_splitter:
                     str_fix = list(date.fromisoformat(value[j]).strftime("%A, %d. %B %Y"))
                     str_fix[0] = str_fix[0].upper()
                     schedules_str += ''.join(str_fix) + '\n👉 '
                 else:
                     schedules_str += self.remove_html(value[j]) + ' '
-            schedules_str
+        return schedules_str
