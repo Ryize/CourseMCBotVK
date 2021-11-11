@@ -67,11 +67,11 @@ class VkBot(BaseStarter, LoginManagerMixin, APIBackendMixin, KeyboardMixin):
         msg = ' '.join(text_in_msg.split()[2:])
         username = FileDB().get_by_value(value=user_id, index=0)
         username = username[0][1]
-        if not self.__send_notification(send_id, msg, [user_id], system_name=f'[{username}]'):
-            self.send_msg(send_id,
-                          message=f'⛔️ Вы указали не верный id пользователя!',
-                          )
-            return
+
+        self.send_msg(user_id,
+                      message=f'{self.system_name}{msg}',
+                      )
+
         self.send_msg(send_id,
                       message=f'✅️ Сообщение пользователю: {username} - успешно отправлено!',
                       )
@@ -97,7 +97,6 @@ class VkBot(BaseStarter, LoginManagerMixin, APIBackendMixin, KeyboardMixin):
                           message=f'⛔️ Группы с таким номером нету!',
                           )
             return
-    
 
     def __send_notification(self, send_id: int, text: str, user_data: list, system_name: str = None):
         if self.system_name == system_name or not system_name:
@@ -140,8 +139,9 @@ class VkBot(BaseStarter, LoginManagerMixin, APIBackendMixin, KeyboardMixin):
                         self.send_msg(send_id,
                                       message='🆘На сервере произошла ошибка🆘\nМы уже оповестили Администрацию об этом, приносим свои извинения💌',
                                       keyboard=self.get_standart_keyboard())
+
     def get_command_text(self, command, command_args):
-        return''.join(list(command.replace(command_args, ''))[1:]).lstrip()
+        return ''.join(list(command.replace(command_args, ''))[1:]).lstrip()
 
     def __error_handler(self, exc, any: str = ''):
         self.send_admin_msg(f'❌Произошла ошибка: {exc}\n{any}')
