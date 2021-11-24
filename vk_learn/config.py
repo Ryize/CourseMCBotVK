@@ -1,4 +1,4 @@
-VK_T = 'bd3227ac96e6f7179cc5df70728ca0f431635f49cab461a4b3dd156021f63110abf9d396e29d32aafc2bc'
+VK_T = '363f09adf1668307d4c78960be1a760a4932c2c819dc8ea5209307c99416cfac6a3faebc2217afa05d499'
 URL = 'https://coursemc.space'
 STANDART_HEAD='/api/v1/'
 PAGE_1 = 'student/'
