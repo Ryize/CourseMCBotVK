@@ -22,7 +22,7 @@ if __name__ == '__main__':
         },
         '/чат *args': {
             'command': server.command_chat_with_mates,
-            'comment': 'Получить список всех команд',
+            'comment': 'Написать сообщение в чат своей группы',
         },
         '/я *auth': {
             'command': server.command_who_i,
