@@ -82,15 +82,15 @@ class VkBot(BaseStarter, LoginManagerMixin, APIBackendMixin, KeyboardMixin):
             self.send_admin_msg(f'😈Бот успешно остановлен, Администратором {login}!')
             sys.exit()
 
-    def send_notification(self, text: str, send_id: int, users: list = []) -> None:
+    def send_notification(self, text: str, send_id: int, users: list = [], system_name: str = None) -> None:
         if not bool(text):
             text = '😅Тестовое сообщение!'
         if users:
             for user in users:
                 if isinstance(users[0], list) == 1:
-                    self.__send_notification(send_id, text, user)
+                    self.__send_notification(send_id, text, user, system_name)
                 else:
-                    self.__send_notification(send_id, text, users)
+                    self.__send_notification(send_id, text, users, system_name)
                     break
         else:
             self.send_msg(send_id,
@@ -109,7 +109,7 @@ class VkBot(BaseStarter, LoginManagerMixin, APIBackendMixin, KeyboardMixin):
             return False
         else:
             self.send_msg(user_id,
-                          message=f'{system_name}: {text}\n{self.standart_msg_block}',
+                          message=f'{system_name} {text}\n{self.standart_msg_block}',
                           )
         return True
 
