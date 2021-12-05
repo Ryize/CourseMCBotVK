@@ -122,6 +122,7 @@ class APIBackendMixin:
         return data
 
     def __to_json(self, data):
+        print(data)
         return json.loads(data)
 
     @staticmethod
@@ -219,7 +220,7 @@ class BaseStarter:
                                            message='👮Данная команда сейчас не доступна! /help',
                                            random_id=get_random_id(),
                                            keyboard=KeyboardMixin().get_help().get_keyboard())
-            if (command.lower () == text_in_msg.lower()) or param:
+            if (command.lower() == text_in_msg.lower()) or param:
                 self.command = command
                 requested_function = self.commands[command]['command']
                 if self.debug:
@@ -242,6 +243,13 @@ class BaseStarter:
             command = command.replace('/', '')
         except:
             pass
+        command_suffix = ('stop', 'nshow', 'auth', 'admin', 'args')
+        for i in command_suffix:
+
+            if text_in_msg.split(''.join(command))[0] == '':
+                break
+        else:
+            return
         if text_in_msg.find(command) != -1 and command_args.count('stop'):
             self._command_args = command
             raise CommandStopError('Эта команда сейчас не работает!')
