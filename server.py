@@ -143,20 +143,22 @@ class Server(VkBot):
         users = FileDB().get_by_value(value=users_groups, index=2)
         text = text_in_msg[2:]
         self.send_notification(text, send_id, users)
-        self.send_msg(send_id,
-                      message=f'👉Ваше сообщение:\n{text}\n\n👉С припиской:\n{self.standart_msg_block}\n\n✅Успешно отправленно!',
-                      )
 
     def command_anotification(self, send_id: int):
         text = self.get_command_text(self._text_in_msg, self._command_args)
         for user in FileDB().splitter():
-            try:
-                self.send_notification(text, send_id, user)
-            except:
-                continue
-        self.send_msg(send_id,
-                      message=f'👉Ваше сообщение:\n{text}\n\n👉С припиской:\n{self.standart_msg_block}\n\n✅Успешно отправленно!',
-                      )
+            self.send_notification(text, send_id, user)
+
+    def command_chat_with_mates(self, send_id: int):
+        user, group = self._get_user_and_group(str(send_id))
+        text_in_msg = self._text_in_msg.replace(self._command_args, '')
+        users_groups = group['id']
+        text_in_msg = self.get_command_text(self._text_in_msg, self._command_args)
+
+        users = FileDB().get_by_value(value=str(users_groups), index=2)
+        text = text_in_msg[2:]
+        self.send_notification(text_in_msg, send_id, users, f'Новое соо]бщение из чата [{user[0][1]}]:\n')
+        self.send_msg(send_id, message='✅ Ваше сообщение успешно отправленно!')
 
     # Utility functions
     def _get_user_and_group(self, user_id: str):
@@ -169,19 +171,21 @@ class Server(VkBot):
     def __to_read_data(self, entry_list: list, key_dict: tuple = (), line_splitter: str = '\n',
                        exclude_key_splitter: tuple = (), date_key_splitter: tuple = (), max_size: int = None) -> str:
         schedules_str = ''
+        entry_list.reverse()
         if max_size:
-            entry_list = entry_list[-max_size:]
+            entry_list = entry_list[:-max_size]
         entry_list.reverse()
         for key, value in enumerate(entry_list):
             for i, j in enumerate(key_dict):
                 if i + 1 == len(key_dict):
                     schedules_str += self.remove_html(value[j]) + '\n'
                 elif j not in exclude_key_splitter and j not in date_key_splitter:
-                    schedules_str += f'\n\n{line_splitter}{self.remove_html(str(value[j]))}\n👉 '
+                    schedules_str += self.remove_html(str(value[j])) + '\n👉 '
                 elif j in date_key_splitter:
                     str_fix = list(date.fromisoformat(value[j]).strftime("%A, %d. %B %Y"))
                     str_fix[0] = str_fix[0].upper()
                     schedules_str += ''.join(str_fix) + '\n👉 '
                 else:
                     schedules_str += self.remove_html(value[j]) + ' '
+            schedules_str += line_splitter
         return schedules_str
