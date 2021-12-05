@@ -3,7 +3,7 @@ from vk_learn.config import VK_T, URL, STANDART_HEAD
 if __name__ == '__main__':
     from server import Server
 
-    server = Server(api_token=VK_T, group_id=207629753, url=URL, standart_head=STANDART_HEAD, debug=False)
+    server = Server(api_token=VK_T, group_id=207629753, url=URL, standart_head=STANDART_HEAD, debug=True)
 
     server.admins = [513239285]
 
@@ -18,6 +18,10 @@ if __name__ == '__main__':
         },
         '🔎Помощь *nshow': {
             'command': server.command_help,
+            'comment': 'Получить список всех команд',
+        },
+        '/чат *args': {
+            'command': server.command_chat_with_mates,
             'comment': 'Получить список всех команд',
         },
         '/я *auth': {
