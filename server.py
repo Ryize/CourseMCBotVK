@@ -157,7 +157,7 @@ class Server(VkBot):
 
         users = FileDB().get_by_value(value=str(users_groups), index=2)
         text = text_in_msg[2:]
-        self.send_notification(text_in_msg, send_id, users, f'Новое соо]бщение из чата [{user[0][1]}]:\n')
+        self.send_notification(text_in_msg, send_id, users, f'Новое сообщение из чата [{user[0][1]}]:\n')
         self.send_msg(send_id, message='✅ Ваше сообщение успешно отправленно!')
 
     # Utility functions
