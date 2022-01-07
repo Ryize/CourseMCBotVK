@@ -143,6 +143,7 @@ class Server(VkBot):
         users = FileDB().get_by_value(value=users_groups, index=2)
         text = text_in_msg[2:]
         self.send_notification(text, send_id, users)
+        self.send_msg(send_id, message=f'✅ Сообщение в группу {int(users_groups)} успешно отправлено!')
 
     def command_anotification(self, send_id: int):
         text = self.get_command_text(self._text_in_msg, self._command_args)
