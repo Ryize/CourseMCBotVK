@@ -149,6 +149,7 @@ class Server(VkBot):
         text = self.get_command_text(self._text_in_msg, self._command_args)
         for user in FileDB().splitter():
             self.send_notification(text, send_id, user)
+        self.send_msg(send_id, message='✅ Сообщение успешно отправлено!')
 
     def command_chat_with_mates(self, send_id: int):
         user, group = self._get_user_and_group(str(send_id))
