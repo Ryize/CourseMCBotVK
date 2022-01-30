@@ -122,12 +122,11 @@ class APIBackendMixin:
         return data
 
     def __to_json(self, data):
-        print(data)
         return json.loads(data)
 
     @staticmethod
     def remove_html(value):
-        return re.sub(r'\<[^>]*\>', '', value)
+        return re.sub(r'\<[^>]*\>', '', value).replace('&nbsp;', ' ')
 
 
 class KeyboardMixin(VkKeyboard):
