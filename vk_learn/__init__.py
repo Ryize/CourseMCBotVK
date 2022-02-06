@@ -12,3 +12,4 @@ __version__ = '1.2.8' #Fix bug in command /anote
 __version__ = '1.2.9' #Fix bug in command /anote, change functions self_notification
 __version__ = '1.2.10' #Fix bug in schedule
 __version__ = '1.3.0' #Add command /чат, fix bug in /schedule(Message to long)
+__version__ = '1.4.0' #Added translator, hidden some command from /help
