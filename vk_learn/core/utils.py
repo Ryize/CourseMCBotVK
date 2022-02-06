@@ -4,6 +4,7 @@ import re
 import vk_api.vk_api
 
 from typing import Union
+from googletrans import Translator
 from vk_api.keyboard import VkKeyboard, VkKeyboardColor
 from vk_api.bot_longpoll import VkBotEventType
 from vk_api.bot_longpoll import VkBotLongPoll, VkBotMessageEvent
