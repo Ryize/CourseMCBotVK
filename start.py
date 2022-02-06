@@ -20,10 +20,6 @@ if __name__ == '__main__':
             'command': server.command_help,
             'comment': 'Получить список всех команд',
         },
-        '/чат *args': {
-            'command': server.command_chat_with_mates,
-            'comment': 'Написать сообщение в чат своей группы',
-        },
         '/я *auth': {
             'command': server.command_who_i,
             'comment': 'Получить информацию про свой аккаунт',
@@ -32,11 +28,11 @@ if __name__ == '__main__':
             'command': server.command_helpop,
             'comment': 'Отправить вопрос или пожелания Администрации',
         },
-        '⚾️Пинг': {
+        '⚾️Пинг *nshow': {
             'command': server.command_ping,
             'comment': 'Проверить работоспособность бота',
         },
-        '✅Все расписания *auth': {
+        '✅Все расписания *auth *nshow': {
             'command': server.command_schedule,
             'comment': 'Получить своё расписание',
         },
@@ -64,6 +60,10 @@ if __name__ == '__main__':
             'command': server.command_login,
             'comment': 'Авторизация, формат: /login Матвей Чекашов, 1234 (Запятую между логином и паролем ставить '
                        'ОБЯЗАТЕЛЬНО!)',
+        },
+        '/translate': {
+            'command': server.command_translate,
+            'comment': 'Получить информацию по использованию переводчика',
         },
         '/группы *admin': {
             'command': server.command_groups,
