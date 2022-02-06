@@ -222,10 +222,15 @@ class BaseStarter:
             if (command.lower() == text_in_msg.lower()) or param:
                 self.command = command
                 requested_function = self.commands[command]['command']
-                if self.debug:
-                    requested_function(chat_id)
-                else:
-                    requested_function(chat_id)
+                requested_function(chat_id)
+                break
+
+        else:
+            translator = Translator()
+            translation_text = translator.translate(text_in_msg, dest='ru').text if translator.translate(text_in_msg, dest='en').text == text_in_msg else translator.translate(text_in_msg, dest='en').text
+            self._vk_api.messages.send(peer_id=chat_id,
+                                       message=translation_text,
+                                       random_id=get_random_id(),)
 
     def __error_handler(self, exc):
         print(f'Произошла ошибка: {exc}!')
