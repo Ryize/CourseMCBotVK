@@ -2,6 +2,7 @@ import sys
 
 from vk_api.bot_longpoll import VkBotEventType
 from vk_api.utils import get_random_id
+from threading import Thread
 
 from vk_learn.core.utils import BaseStarter, LoginManagerMixin, APIBackendMixin, KeyboardMixin, FileDB
 
@@ -127,10 +128,13 @@ class VkBot(BaseStarter, LoginManagerMixin, APIBackendMixin, KeyboardMixin):
                 send_id = event.object.peer_id
                 if self.debug:
                     if send_id in self.admins:
-                        self._command_starter(event=event)
+                        th = Thread(target=self._command_starter, args=(event, ))
+                        th.start()
+                        #self._command_starter(event=event)
                 else:
                     try:
-                        self._command_starter(event=event)
+                        th = Thread(target=self._command_starter, args=(event, ))
+                        th.start()
                     except Exception as exc:
                         text_message = event.object.text
                         username = '\n👤Имя пользователя: {}\n📝Текст сообщения: {}'.format(self.get_full_name(send_id),
