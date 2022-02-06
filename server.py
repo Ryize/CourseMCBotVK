@@ -161,6 +161,10 @@ class Server(VkBot):
         text = text_in_msg[2:]
         self.send_notification(text_in_msg, send_id, users, f'Новое сообщение из чата [{user[0][1]}]:\n')
         self.send_msg(send_id, message='✅ Ваше сообщение успешно отправленно!')
+        
+    def command_translate(self, send_id: int):
+        self.send_msg(send_id, message='Для перевода вашего предложения, отправьте его боту не используя никаких команд. Пример:\n\nWhat are you doing?\nЧто делаешь?')
+
 
     # Utility functions
     def _get_user_and_group(self, user_id: str):
