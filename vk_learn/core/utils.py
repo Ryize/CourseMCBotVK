@@ -228,7 +228,10 @@ class BaseStarter:
 
         else:
             translator = Translator()
-            translation_text = translator.translate(text_in_msg, dest='ru').text if translator.translate(text_in_msg, dest='en').text == text_in_msg else translator.translate(text_in_msg, dest='en').text
+            if translator.detect(text_in_msg).lang == 'ru':
+                translation_text = translator.translate(text_in_msg, dest='en').text
+            else:
+                translation_text = translator.translate(text_in_msg, dest='ru').text
             self._vk_api.messages.send(peer_id=chat_id,
                                        message=translation_text,
                                        random_id=get_random_id(),)
