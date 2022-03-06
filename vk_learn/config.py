@@ -1,6 +1,5 @@
 import os
 
-os.getenv('TOKEN')
 VK_T = os.getenv('TOKEN')
 URL = 'https://coursemc.space'
 STANDART_HEAD='/api/v1/'
