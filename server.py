@@ -163,7 +163,7 @@ class Server(VkBot):
         self.send_msg(send_id, message='✅ Ваше сообщение успешно отправленно!')
         
     def command_translate(self, send_id: int):
-        self.send_msg(send_id, message='Для перевода вашего предложения, отправьте его боту не используя никаких команд. Пример:\n\nWhat are you doing?\nЧто делаешь?')
+        self.send_msg(send_id, message='Для перевода вашего предложения, отправьте сообщение боту (не используя команду). Пример:\n\nWhat are you doing?\nЧто делаешь?')
 
 
     # Utility functions
