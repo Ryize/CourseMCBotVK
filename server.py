@@ -1,5 +1,7 @@
 import random
 import string
+from pprint import pprint
+
 import pyshorteners
 import wikipedia
 
@@ -27,6 +29,15 @@ class Server(VkBot):
             class_schedule = self.get(PAGE_4 + str(self.get_user_by_id(str(send_id))[0][1]) + '/', json=True)
             groups = self.get(PAGE_3, json=True)
             students = self.get(PAGE_1, json=True)
+            dict_with_date = {
+                'Понедельник': [],
+                'Вторник': [],
+                'Среда': [],
+                'Четверг': [],
+                'Пятница': [],
+                'Суббота': [],
+                'Воскресенье': [],
+            }
             for key, schedule in enumerate(class_schedule):
                 for group in groups:
                     if int(group['id']) == int(schedule['group']):
@@ -37,17 +48,19 @@ class Server(VkBot):
                         class_schedule[key]['group'] = group['title'] + student_string
                         time_ = class_schedule[key]['time_lesson']
                         class_schedule[key]['time_lesson'] = time_[:-3]
+                        dict_with_date[class_schedule[key]['weekday']].append(class_schedule[key])
                         break
-            for schedule in class_schedule:
-                result_message = '{id_}) {group_title}\n' \
-                                 '{weekday} {time_lesson}\n' \
-                                 '{slasher}'.format(
-                    id_=schedule['id'],
-                    weekday=schedule['weekday'],
-                    time_lesson=schedule['time_lesson'],
-                    group_title=schedule['group'],
-                    slasher='🔥' * 12,
-                )
+            for day, weekday in dict_with_date.items():
+                result_message = '{day}\n\n'.format(day=day)
+                for schedule in weekday:
+                    result_message += '👉{time_lesson} ' \
+                                     '{group_title}\n' \
+                                     '{slasher}\n\n'.format(
+                        weekday=schedule['weekday'],
+                        time_lesson=schedule['time_lesson'],
+                        group_title=schedule['group'],
+                        slasher='🔥' * 12,
+                    )
                 self.send_msg(send_id, message=result_message)
             return
 
