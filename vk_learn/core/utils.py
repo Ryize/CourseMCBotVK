@@ -18,6 +18,7 @@ class FileDB:
     Сlass that implements the basic logic of working with files, writing, reading, splitting into lists by element, etc.
     this class covers the need for basic file handling
     """
+
     def __init__(self, file_name: str = 'test.txt', *args, **kwargs):
         self.__file_name = file_name
         super().__init__(*args, **kwargs)
@@ -79,6 +80,7 @@ class LoginManagerMixin:
     Logic of basic work with users, authorization, creating a new user, getting a user by id of VK.
     For work, another class is used FileDB
     """
+
     def __init__(self, file_name: str = 'test.txt', *args, **kwargs):
         self.__FileDB = FileDB(file_name)
         super().__init__(*args, **kwargs)
@@ -104,13 +106,16 @@ class APIBackendMixin:
     The logic of working with the API, the logic of receiving data by get, post requests,
     and also converting them to json and back
     """
+
     def __init__(self, url: str = 'https://127.0.0.1', standart_head: str = '/api/', *args, **kwargs):
         self.url = url
         self.standart_head = standart_head
         self.full_url = url + standart_head
         super().__init__(*args, **kwargs)
 
-    def get(self, page: str = '', json: bool = False):
+    def get(self, page: str = '', json: bool = False, data: dict = None):
+        if data:
+            data = requests.get(self.full_url + page, verify=False, data=data).text
         data = requests.get(self.full_url + page, verify=False).text
         if json:
             data = self.__to_json(data)
@@ -135,6 +140,7 @@ class KeyboardMixin(VkKeyboard):
     Working with the VK keyboard, implemented methods for
     getting, hiding the keyboard and showing auxiliary commands
     """
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -165,6 +171,7 @@ class BaseStarter:
     Implemented the logic for launching the bot,
     automatically catching errors, applying command parameters, etc.
     """
+
     def __init__(self, api_token, group_id, debug: bool = False, *args, **kwargs):
 
         # Для Long Poll
@@ -234,7 +241,7 @@ class BaseStarter:
                 translation_text = translator.translate(text_in_msg, dest='ru').text
             self._vk_api.messages.send(peer_id=chat_id,
                                        message=translation_text,
-                                       random_id=get_random_id(),)
+                                       random_id=get_random_id(), )
 
     def __error_handler(self, exc):
         print(f'Произошла ошибка: {exc}!')
@@ -275,10 +282,7 @@ class BaseStarter:
                 self._command_args = command
                 return_data.append(command)
 
-
         if text_in_msg.find(command) != -1 and command_args.count('args'):
             self._command_args = command
             return_data.append(command)
         return return_data
-
-

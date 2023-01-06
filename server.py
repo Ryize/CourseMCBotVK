@@ -7,7 +7,7 @@ from datetime import date
 
 from vk_learn.core.utils import FileDB
 from vk_learn.release import VkBot
-from vk_learn.config import PAGE_1, PAGE_2, PAGE_3
+from vk_learn.config import PAGE_1, PAGE_2, PAGE_3, PAGE_4
 
 
 class Server(VkBot):
@@ -23,7 +23,35 @@ class Server(VkBot):
         self.send_msg(send_id, message='Понг!')
 
     def command_schedule(self, send_id: int) -> None:
-        key_splitter = '🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥\n\n👉 '
+        if send_id in self.admins:
+            class_schedule = self.get(PAGE_4 + str(self.get_user_by_id(str(send_id))[0][1]) + '/', json=True)
+            groups = self.get(PAGE_3, json=True)
+            students = self.get(PAGE_1, json=True)
+            for key, schedule in enumerate(class_schedule):
+                for group in groups:
+                    if int(group['id']) == int(schedule['group']):
+                        student_string = ''
+                        for student in students:
+                            if student['groups'] == int(group['id']):
+                                student_string += '\nСтудент: {username}\n'.format(username=student['name'])
+                        class_schedule[key]['group'] = group['title'] + student_string
+                        time_ = class_schedule[key]['time_lesson']
+                        class_schedule[key]['time_lesson'] = time_[:-3]
+                        break
+            for schedule in class_schedule:
+                result_message = '{id_}) {group_title}\n' \
+                                 '{weekday} {time_lesson}\n' \
+                                 '{slasher}'.format(
+                    id_=schedule['id'],
+                    weekday=schedule['weekday'],
+                    time_lesson=schedule['time_lesson'],
+                    group_title=schedule['group'],
+                    slasher='🔥' * 12,
+                )
+                self.send_msg(send_id, message=result_message)
+            return
+
+        key_splitter = '🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥\n\n👉 '
         key_dict = ('theme', 'weekday', 'lesson_materials')
         date_key_splitter = ('weekday')
 
@@ -161,10 +189,10 @@ class Server(VkBot):
         text = text_in_msg[2:]
         self.send_notification(text_in_msg, send_id, users, f'Новое сообщение из чата [{user[0][1]}]:\n')
         self.send_msg(send_id, message='✅ Ваше сообщение успешно отправленно!')
-        
-    def command_translate(self, send_id: int):
-        self.send_msg(send_id, message='Для перевода вашего предложения, отправьте сообщение боту (не используя команду). Пример:\n\nWhat are you doing?\nЧто делаешь?')
 
+    def command_translate(self, send_id: int):
+        self.send_msg(send_id,
+                      message='Для перевода вашего предложения, отправьте сообщение боту (не используя команду). Пример:\n\nWhat are you doing?\nЧто делаешь?')
 
     # Utility functions
     def _get_user_and_group(self, user_id: str):
