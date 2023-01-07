@@ -52,6 +52,7 @@ class Server(VkBot):
                         break
             for day, weekday in dict_with_date.items():
                 result_message = '{day}\n\n'.format(day=day)
+                weekday.sort(key=lambda x: x['time_lesson'])
                 for schedule in weekday:
                     result_message += '👉{time_lesson} ' \
                                      '{group_title}\n' \
