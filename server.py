@@ -63,7 +63,6 @@ class Server(VkBot):
                         slasher='🔥' * 12,
                     )
                 self.send_msg(send_id, message=result_message)
-                return
             return
 
         key_splitter = '🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥\n\n👉 '
