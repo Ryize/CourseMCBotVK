@@ -54,15 +54,16 @@ class Server(VkBot):
                 result_message = '{day}\n\n'.format(day=day)
                 weekday.sort(key=lambda x: x['time_lesson'])
                 for schedule in weekday:
-                    result_message += '👉{time_lesson} ' \
-                                     '{group_title}\n' \
-                                     '{slasher}\n\n'.format(
-                        weekday=schedule['weekday'],
+                    result_message += '👉{time_lesson} ({duration}) ' \
+                                      '{group_title}\n' \
+                                      '{slasher}\n\n'.format(
                         time_lesson=schedule['time_lesson'],
+                        duration=schedule['duration'][1:5],
                         group_title=schedule['group'],
                         slasher='🔥' * 12,
                     )
                 self.send_msg(send_id, message=result_message)
+                return
             return
 
         key_splitter = '🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥\n\n👉 '
