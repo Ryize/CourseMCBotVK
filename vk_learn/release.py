@@ -1,6 +1,7 @@
 import sys
 
 from vk_api.bot_longpoll import VkBotEventType
+from vk_api.keyboard import VkKeyboard, VkKeyboardColor
 from vk_api.utils import get_random_id
 from threading import Thread
 
@@ -128,17 +129,17 @@ class VkBot(BaseStarter, LoginManagerMixin, APIBackendMixin, KeyboardMixin):
                 send_id = event.object.peer_id
                 if self.debug:
                     if send_id in self.admins:
-                        th = Thread(target=self._command_starter, args=(event, ))
+                        th = Thread(target=self._command_starter, args=(event,))
                         th.start()
-                        #self._command_starter(event=event)
+                        # self._command_starter(event=event)
                 else:
                     try:
-                        th = Thread(target=self._command_starter, args=(event, ))
+                        th = Thread(target=self._command_starter, args=(event,))
                         th.start()
                     except Exception as exc:
                         text_message = event.object.text
                         username = '\n👤Имя пользователя: {}\n📝Текст сообщения: {}'.format(self.get_full_name(send_id),
-                                                                                            text_message)
+                                                                                          text_message)
                         self.__error_handler(exc=exc, any=username)
                         self.send_msg(send_id,
                                       message='🆘На сервере произошла ошибка🆘\nМы уже оповестили Администрацию об этом, приносим свои извинения💌',
@@ -146,6 +147,20 @@ class VkBot(BaseStarter, LoginManagerMixin, APIBackendMixin, KeyboardMixin):
 
     def get_command_text(self, command, command_args):
         return ''.join(list(command.replace(command_args, ''))[1:]).lstrip()
+
+    def get_standart_keyboard(self):
+        if self.chat_id not in self.admins:
+            return super().get_standart_keyboard()
+        keyboard = VkKeyboard()
+        keyboard.add_button(label='✅Все расписания', color=VkKeyboardColor.POSITIVE)
+        keyboard.add_line()
+        keyboard.add_button(label='🔎Помощь', color=VkKeyboardColor.PRIMARY)
+        keyboard.add_button(label='⚾️Пинг', color=VkKeyboardColor.PRIMARY)
+        keyboard.add_line()
+        keyboard.add_button(label='✍️Заявки', color=VkKeyboardColor.POSITIVE)
+        keyboard.add_line()
+        keyboard.add_button(label='☠️Скрыть клавиатуру', color=VkKeyboardColor.NEGATIVE)
+        return keyboard
 
     def __error_handler(self, exc, any: str = ''):
         self.send_admin_msg(f'❌Произошла ошибка: {exc}\n{any}')

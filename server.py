@@ -1,6 +1,5 @@
 import random
 import string
-from pprint import pprint
 
 import pyshorteners
 import wikipedia
@@ -9,7 +8,7 @@ from datetime import date
 
 from vk_learn.core.utils import FileDB
 from vk_learn.release import VkBot
-from vk_learn.config import PAGE_1, PAGE_2, PAGE_3, PAGE_4
+from vk_learn.config import PAGE_1, PAGE_2, PAGE_3, PAGE_4, PAGE_5
 
 
 class Server(VkBot):
@@ -67,7 +66,7 @@ class Server(VkBot):
 
         key_splitter = '🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥\n\n👉 '
         key_dict = ('theme', 'weekday', 'lesson_materials')
-        date_key_splitter = ('weekday')
+        date_key_splitter = ('weekday',)
 
         username = self.get_user_by_id(str(send_id))
         schedules_with_html = self.post(PAGE_2 + 'get_by_username/', json=True, data={'username': username[0][1]})
@@ -207,6 +206,16 @@ class Server(VkBot):
     def command_translate(self, send_id: int):
         self.send_msg(send_id,
                       message='Для перевода вашего предложения, отправьте сообщение боту (не используя команду). Пример:\n\nWhat are you doing?\nЧто делаешь?')
+
+    def command_application(self, send_id: int):
+        app_training = self.get(PAGE_5, json=True)
+        result_app = ''
+        for train in app_training:
+            result_app += f'Имя: {train["name"]}\n' \
+                          f'Способ связи: {train["contact"]}\n' \
+                          f'Почта: {train["email"]}\n' \
+                          f'Заявка создана: {train["created_at"][:10]}\n\n\n'
+        self.send_msg(send_id, message=f'Необработанные заявки:\n{result_app}')
 
     # Utility functions
     def _get_user_and_group(self, user_id: str):

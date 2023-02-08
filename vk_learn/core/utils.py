@@ -213,6 +213,7 @@ class BaseStarter:
 
         self._text_in_msg = text_in_msg
         self.__send_id = chat_id
+        self.chat_id = chat_id
 
         for command in self.commands:
             try:
