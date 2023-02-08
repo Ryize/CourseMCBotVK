@@ -36,7 +36,7 @@ if __name__ == '__main__':
             'command': server.command_schedule,
             'comment': 'Получить своё расписание',
         },
-        '✍️Заявки *auth *nshow': {
+        '✍️Заявки *admin *nshow': {
             'command': server.command_application,
             'comment': 'Получить заявки на обучение',
         },
