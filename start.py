@@ -5,7 +5,7 @@ if __name__ == '__main__':
 
     server = Server(api_token=VK_T, group_id=207629753, url=URL, standart_head=STANDART_HEAD)
 
-    server.admins = [513239285]
+    server.admins = [513239285, 655080669]
 
     COMMANDS = {
         '/help': {
