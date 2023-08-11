@@ -159,7 +159,7 @@ class VkBot(BaseStarter, LoginManagerMixin, APIBackendMixin, KeyboardMixin):
         keyboard.add_line()
         keyboard.add_button(label='✍️Заявки', color=VkKeyboardColor.POSITIVE)
         keyboard.add_line()
-        keyboard.add_button(label='☠️Скрыть клавиатуру', color=VkKeyboardColor.NEGATIVE)
+        keyboard.add_button(label='💳 Оплата', color=VkKeyboardColor.SECONDARY)
         return keyboard
 
     def __error_handler(self, exc, any: str = ''):

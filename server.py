@@ -8,7 +8,8 @@ from datetime import date
 
 from vk_learn.core.utils import FileDB
 from vk_learn.release import VkBot
-from vk_learn.config import PAGE_1, PAGE_2, PAGE_3, PAGE_4, PAGE_5
+from vk_learn.config import PAGE_1, PAGE_2, PAGE_3, PAGE_4, PAGE_5, PAGE_PAYMENT
+from yookassa_worker import get_payment_url
 
 
 class Server(VkBot):
@@ -216,6 +217,14 @@ class Server(VkBot):
                           f'Почта: {train["email"]}\n' \
                           f'Заявка создана: {train["created_at"][:10]}\n\n\n'
         self.send_msg(send_id, message=f'Необработанные заявки:\n{result_app}')
+
+    def command_payment(self, send_id: int):
+        username = self.get_user_by_id(str(send_id))[0][1]
+        amount = self.get(f'{PAGE_PAYMENT}{username}/', json=True).get('amount')
+        if not amount:
+            self.send_msg(send_id, message=f'✅ Вы уже всё оплатили!')
+        url = get_payment_url(amount)
+        self.send_msg(send_id, message=f'Счет на оплату сформирован.\n\nСумма: {amount}\nАдрес оплаты:\n{url}')
 
     # Utility functions
     def _get_user_and_group(self, user_id: str):

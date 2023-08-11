@@ -1,11 +1,16 @@
 from vk_learn.config import VK_T, URL, STANDART_HEAD
 
+
+GROUP_ID = 207629753
+VK_ID_MATVEY_CHEKASHOV = 513239285
+VK_ID_ALEXANDRA_TITARENKO = 655080669
+
 if __name__ == '__main__':
     from server import Server
 
-    server = Server(api_token=VK_T, group_id=207629753, url=URL, standart_head=STANDART_HEAD)
+    server = Server(api_token=VK_T, group_id=GROUP_ID, url=URL, standart_head=STANDART_HEAD)
 
-    server.admins = [513239285, 655080669]
+    server.admins = [VK_ID_MATVEY_CHEKASHOV, VK_ID_ALEXANDRA_TITARENKO]
 
     COMMANDS = {
         '/help': {
@@ -15,6 +20,10 @@ if __name__ == '__main__':
         'Начать *nshow': {
             'command': server.command_help,
             'comment': 'Получить список всех команд',
+        },
+        '💳 Оплата *nshow': {
+            'command': server.command_payment,
+            'comment': 'Оплатить занятия',
         },
         '🔎Помощь *nshow': {
             'command': server.command_help,
