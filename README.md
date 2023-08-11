@@ -1,33 +1,33 @@
 # CourseMCBotVK
 
-VK Bot for my project https://coursemc.space
+ВК бота проекта https://coursemc.ru
 
 ## Deploy locally:
 
-> Install Python(If it's not installed)<br>
+> Установите Python (Если ещё не установлен)<br>
 > [Download Python3](https://www.python.org/downloads/)
 
-Clone the repository and go to installed folder:
+Клонируйте репозиторий и перейдите в установленную папку:
 ```
 git clone https://github.com/Ryize/CourseMCBotVK.git
 cd CourseMCBotVK
 ```
 
-Install requirements:
+Установите requirements:
 ```
 pip3 install -r requirements.txt
 ```
 
-Specify your TOKEN and GROUP_ID:
+Укажите свой ТОКЕН и GROUP_ID:
 ```
 server = Server(api_token=VK_T, group_id=207629753, url=URL, standart_head=STANDART_HEAD)
 ```
 
-Run the bot:
+Запустите бота:
 ```
 python3 start.py
 ```
 
-The bot is used as an alternative to the course website.
+Бот используется в качестве альтернативы веб-сайту курса (coursemc).
 
-> Technologies used in the project: Python3, vk-api, threading, requests, json, re.
+> Технологии, использованные в проекте: Python3, vk-api, threading, requests, json, re.
