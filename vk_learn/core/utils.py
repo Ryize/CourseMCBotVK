@@ -151,8 +151,8 @@ class KeyboardMixin(VkKeyboard):
 
     def get_standart_keyboard(self):
         keyboard = VkKeyboard()
-        keyboard.add_button(label='✅Все расписания', color=VkKeyboardColor.POSITIVE)
-        keyboard.add_line()
+        # keyboard.add_button(label='✅Все расписания', color=VkKeyboardColor.POSITIVE)
+        # keyboard.add_line()
         keyboard.add_button(label='🔎Помощь', color=VkKeyboardColor.PRIMARY)
         keyboard.add_button(label='⚾️Пинг', color=VkKeyboardColor.PRIMARY)
         keyboard.add_line()
@@ -261,7 +261,6 @@ class BaseStarter:
             pass
         command_suffix = ('stop', 'nshow', 'auth', 'admin', 'args')
         for i in command_suffix:
-
             if text_in_msg.split(''.join(command))[0] == '':
                 break
         else:

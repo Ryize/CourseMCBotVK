@@ -223,6 +223,7 @@ class Server(VkBot):
         amount = self.get(f'{PAGE_PAYMENT}{username}/', json=True).get('amount')
         if not amount:
             self.send_msg(send_id, message=f'✅ Вы уже всё оплатили!')
+            return
         url = get_payment_url(amount)
         self.send_msg(send_id, message=f'Счет на оплату сформирован.\n\nСумма: {amount}\nАдрес оплаты:\n{url}')
 

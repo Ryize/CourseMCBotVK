@@ -131,7 +131,6 @@ class VkBot(BaseStarter, LoginManagerMixin, APIBackendMixin, KeyboardMixin):
                     if send_id in self.admins:
                         th = Thread(target=self._command_starter, args=(event,))
                         th.start()
-                        # self._command_starter(event=event)
                 else:
                     try:
                         th = Thread(target=self._command_starter, args=(event,))
@@ -152,7 +151,7 @@ class VkBot(BaseStarter, LoginManagerMixin, APIBackendMixin, KeyboardMixin):
         if self.chat_id not in self.admins:
             return super().get_standart_keyboard()
         keyboard = VkKeyboard()
-        keyboard.add_button(label='✅Все расписания', color=VkKeyboardColor.POSITIVE)
+        # keyboard.add_button(label='✅Все расписания', color=VkKeyboardColor.POSITIVE)
         keyboard.add_line()
         keyboard.add_button(label='🔎Помощь', color=VkKeyboardColor.PRIMARY)
         keyboard.add_button(label='⚾️Пинг', color=VkKeyboardColor.PRIMARY)

@@ -1,7 +1,8 @@
 import os
+import uuid
 
 from yookassa import Payment, Configuration
-import uuid
+
 Configuration.account_id = os.environ.get('SHOP_ID')
 Configuration.secret_key = os.environ.get('SECRET_KEY')
 
