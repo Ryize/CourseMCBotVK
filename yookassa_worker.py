@@ -34,4 +34,10 @@ def get_payment_url(amount):
         }
     }, idempotence_key)
 
-    return payment.confirmation.confirmation_url
+    return payment.confirmation.confirmation_url, payment.id
+
+
+def check_payment(payment_id):
+    res = Payment.find_one(payment_id)
+    print('!!!', res)
+    return res.status == 'succeeded'

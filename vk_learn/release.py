@@ -143,6 +143,10 @@ class VkBot(BaseStarter, LoginManagerMixin, APIBackendMixin, KeyboardMixin):
                         self.send_msg(send_id,
                                       message='🆘На сервере произошла ошибка🆘\nМы уже оповестили Администрацию об этом, приносим свои извинения💌',
                                       keyboard=self.get_standart_keyboard())
+            elif event.type == VkBotEventType.MESSAGE_EVENT:
+                # если это одно из 3х встроенных действий:
+                if event.object.payload.get('type') == 'check_payment':
+                    self.check_payment(event)
 
     def get_command_text(self, command, command_args):
         return ''.join(list(command.replace(command_args, ''))[1:]).lstrip()
@@ -152,7 +156,7 @@ class VkBot(BaseStarter, LoginManagerMixin, APIBackendMixin, KeyboardMixin):
             return super().get_standart_keyboard()
         keyboard = VkKeyboard()
         # keyboard.add_button(label='✅Все расписания', color=VkKeyboardColor.POSITIVE)
-        keyboard.add_line()
+        # keyboard.add_line()
         keyboard.add_button(label='🔎Помощь', color=VkKeyboardColor.PRIMARY)
         keyboard.add_button(label='⚾️Пинг', color=VkKeyboardColor.PRIMARY)
         keyboard.add_line()

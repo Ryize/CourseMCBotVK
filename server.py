@@ -1,3 +1,4 @@
+import json
 import random
 import string
 
@@ -9,7 +10,7 @@ from datetime import date
 from vk_learn.core.utils import FileDB
 from vk_learn.release import VkBot
 from vk_learn.config import PAGE_1, PAGE_2, PAGE_3, PAGE_4, PAGE_5, PAGE_PAYMENT
-from yookassa_worker import get_payment_url
+from yookassa_worker import get_payment_url, check_payment
 
 
 class Server(VkBot):
@@ -224,8 +225,34 @@ class Server(VkBot):
         if not amount:
             self.send_msg(send_id, message=f'✅ Вы уже всё оплатили!')
             return
-        url = get_payment_url(amount)
-        self.send_msg(send_id, message=f'Счет на оплату сформирован.\n\nСумма: {amount}\nАдрес оплаты:\n{url}')
+        url, payment_id = get_payment_url(amount)
+        with open('payments.txt', 'a') as file:
+            file.write(f'{send_id}/{payment_id}\n')
+        self.send_msg(
+            send_id,
+            message=f'Счет на оплату сформирован.\n\nСумма: {amount}\nАдрес оплаты:\n{url}',
+            keyboard=self.get_payment_keyboard()
+        )
+
+    def check_payment(self, event):
+        send_id = event.object.peer_id
+        with open('payments.txt') as file:
+            text = file.read().split('\n')
+        counter = 0
+        for key, i in enumerate(text[::-1]):
+            if counter == 7:
+                continue
+            payment_information = i.split('/')
+            if payment_information[0] and int(payment_information[0]) == send_id:
+                counter += 1
+                if check_payment(payment_information[1]):
+                    self.success_payment(event)
+                    del text[key]
+                    with open('payments.txt', 'w') as file:
+                        file.write('\n'.join(text))
+                    break
+        else:
+            self.canceled_payment(event)
 
     # Utility functions
     def _get_user_and_group(self, user_id: str):

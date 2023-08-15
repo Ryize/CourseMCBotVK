@@ -141,6 +141,8 @@ class KeyboardMixin(VkKeyboard):
     getting, hiding the keyboard and showing auxiliary commands
     """
 
+    KEYBOARD_SETTINGS = dict(one_time=False, inline=True)
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -163,6 +165,38 @@ class KeyboardMixin(VkKeyboard):
         keyboard = VkKeyboard()
         keyboard.add_button(label='🔎Помощь', color=VkKeyboardColor.POSITIVE)
         return keyboard
+
+    def get_payment_keyboard(self):
+        keyboard = VkKeyboard(**self.KEYBOARD_SETTINGS)
+        keyboard.add_callback_button('🧐 Проверить оплату', color=VkKeyboardColor.POSITIVE,
+                                     payload={"type": "check_payment"})
+        return keyboard
+
+    def success_payment(self, event):
+        message = '✅ Оплата успешно проведена!'
+        self._vk_api.messages.edit(
+            peer_id=event.obj.peer_id,
+            message=message,
+            conversation_message_id=event.obj.conversation_message_id,
+        )
+        payload = {"type": "show_snackbar", "text": message}
+        self._vk_api.messages.sendMessageEventAnswer(
+            event_id=event.object.event_id,
+            user_id=event.object.user_id,
+            peer_id=event.object.peer_id,
+            event_data=json.dumps(payload)
+        )
+
+    def canceled_payment(self, event):
+        message = '❌ Вы не оплатили!'
+        self.send_msg(event.object.peer_id, message)
+        payload = {"type": "show_snackbar", "text": message}
+        self._vk_api.messages.sendMessageEventAnswer(
+            event_id=event.object.event_id,
+            user_id=event.object.user_id,
+            peer_id=event.object.peer_id,
+            event_data=json.dumps(payload)
+        )
 
 
 class BaseStarter:
@@ -196,6 +230,10 @@ class BaseStarter:
         self.admins = []
 
         super().__init__(*args, **kwargs)
+
+    @property
+    def _vk(self):
+        return self.__vk
 
     def start(self, commands: dict) -> None:
         """ Запуск бота """
