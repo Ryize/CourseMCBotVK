@@ -144,7 +144,6 @@ class VkBot(BaseStarter, LoginManagerMixin, APIBackendMixin, KeyboardMixin):
                                       message='🆘На сервере произошла ошибка🆘\nМы уже оповестили Администрацию об этом, приносим свои извинения💌',
                                       keyboard=self.get_standart_keyboard())
             elif event.type == VkBotEventType.MESSAGE_EVENT:
-                # если это одно из 3х встроенных действий:
                 if event.object.payload.get('type') == 'check_payment':
                     self.check_payment(event)
 

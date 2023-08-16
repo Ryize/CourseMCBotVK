@@ -2,6 +2,7 @@ import os
 import uuid
 
 from yookassa import Payment, Configuration
+from yookassa.domain.exceptions import BadRequestError
 
 Configuration.account_id = os.environ.get('SHOP_ID')
 Configuration.secret_key = os.environ.get('SECRET_KEY')
@@ -9,7 +10,6 @@ Configuration.secret_key = os.environ.get('SECRET_KEY')
 
 def get_payment_url(amount):
     idempotence_key = str(uuid.uuid4())
-    quantity = int(amount / 50)
     payment = Payment.create({
         'amount': {
             'value': f'{amount}',
@@ -26,10 +26,10 @@ def get_payment_url(amount):
                 {
                     'description': 'Урок',
                     'amount': {
-                        'value': '50',
+                        'value': f'{amount}',
                         'currency': 'RUB'
                     }, 'vat_code': 1,
-                    'quantity': quantity}],
+                    'quantity': 1}],
             'tax_system_id': 1,
         }
     }, idempotence_key)
@@ -37,7 +37,22 @@ def get_payment_url(amount):
     return payment.confirmation.confirmation_url, payment.id
 
 
-def check_payment(payment_id):
+def check_payment(payment_id, amount):
     res = Payment.find_one(payment_id)
-    print('!!!', res)
+    if res.status == 'pending':
+        idempotence_key = str(uuid.uuid4())
+        try:
+            Payment.capture(
+                payment_id,
+                {
+                    "amount": {
+                        "value": f"{amount}",
+                        "currency": "RUB"
+                    }
+                },
+                idempotence_key
+            )
+        except BadRequestError:
+            pass
+    res = Payment.find_one(payment_id)
     return res.status == 'succeeded'

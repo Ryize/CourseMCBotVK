@@ -1,4 +1,3 @@
-import json
 import random
 import string
 
@@ -236,6 +235,8 @@ class Server(VkBot):
 
     def check_payment(self, event):
         send_id = event.object.peer_id
+        username = self.get_user_by_id(str(send_id))[0][1]
+        amount = self.get(f'{PAGE_PAYMENT}{username}/', json=True).get('amount')
         with open('payments.txt') as file:
             text = file.read().split('\n')
         counter = 0
@@ -245,11 +246,12 @@ class Server(VkBot):
             payment_information = i.split('/')
             if payment_information[0] and int(payment_information[0]) == send_id:
                 counter += 1
-                if check_payment(payment_information[1]):
+                if check_payment(payment_information[1], amount):
                     self.success_payment(event)
                     del text[key]
                     with open('payments.txt', 'w') as file:
                         file.write('\n'.join(text))
+                    self.post(f'{PAGE_PAYMENT}{username}/')
                     break
         else:
             self.canceled_payment(event)
