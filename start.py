@@ -102,6 +102,46 @@ if __name__ == '__main__':
             'command': server.command_killbot,
             'comment': 'Остановить бота',
         },
+        'Пропустить занятие *nshow *auth': {
+            'command': server.skipping_a_class,
+            'comment': 'Отправить уведомление на сайт о пропуске занятия',
+        },
+        'Пропустить *nshow *auth': {
+            'command': server.skip,
+            'comment': 'Подтверждение пропуска занятия',
+        },
+        'Я передумал *nshow *auth': {
+            'command': server.change_your_mind,
+            'comment': 'Отказ от пропуска занятия',
+        },
+        'Буду отсутствовать одно занятие *nshow *auth': {
+            'command': server.absence_schedule,
+            'comment': 'График отсутствия',
+        },
+        'Буду отсутствовать два занятия *nshow *auth': {
+            'command': server.absence_schedule,
+            'comment': 'График отсутствия',
+        },
+        'Буду отсутствовать три занятия *nshow *auth': {
+            'command': server.absence_schedule,
+            'comment': 'График отсутствия',
+        },
+        'Буду отсутствовать четыре занятия *nshow *auth': {
+            'command': server.absence_schedule,
+            'comment': 'График отсутствия',
+        },
+        'Буду отсутствовать пять занятий *nshow *auth': {
+            'command': server.absence_schedule,
+            'comment': 'График отсутствия',
+        },
+        '/Пропущу *args *auth': {
+            'command': server.absence_schedule,
+            'comment': 'График отсутствия',
+        },
+        '/пропущу *args *auth': {
+            'command': server.absence_schedule,
+            'comment': 'График отсутствия',
+        },
     }
     while True:
         server.start(COMMANDS)

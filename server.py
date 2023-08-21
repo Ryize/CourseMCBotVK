@@ -1,14 +1,17 @@
+import datetime
 import random
+import re
 import string
 
 import pyshorteners
+import requests
 import wikipedia
 
 from datetime import date
 
 from vk_learn.core.utils import FileDB
 from vk_learn.release import VkBot
-from vk_learn.config import PAGE_1, PAGE_2, PAGE_3, PAGE_4, PAGE_5, PAGE_PAYMENT
+from vk_learn.config import PAGE_1, PAGE_2, PAGE_3, PAGE_4, PAGE_5, PAGE_PAYMENT, PAGE_MISSING
 from yookassa_worker import get_payment_url, check_payment
 
 
@@ -255,6 +258,64 @@ class Server(VkBot):
                     break
         else:
             self.canceled_payment(event)
+
+    # В клас class Server(VkBot)
+    def skipping_a_class(self, send_id: int) -> None:
+        self.send_msg(send_id, message='Вы точно хотите пропустить занятие?',
+                      keyboard=self.skipping_a_class_keyboard())
+
+    def skip(self, send_id: int) -> None:
+        self.send_msg(send_id,
+                      message='Выберите время отсутствия.\n'
+                              'Либо введите команду: /Пропущу x\n'
+                              'Пример: /Пропущу 7',
+                      keyboard=self.absence_schedule_keyboard())
+
+    def absence_schedule(self, send_id: int) -> None:
+        try:
+            username = self.get_user_by_id(str(send_id))[0][1]
+            current_date = datetime.date.today()
+            tomorrow = current_date + datetime.timedelta(days=1)
+            # Приведение даты к нужному формату
+            tomorrow = tomorrow.strftime('%Y-%m-%d')
+            skip = self._text_in_msg
+            match = re.search(r'/[Пп]ропущу\s*(\d+)', skip)
+            if match:
+                total_passes = int(match.group(1))
+            if skip == 'Буду отсутствовать одно занятие':
+                total_passes = 1
+            elif skip == 'Буду отсутствовать два занятия':
+                total_passes = 2
+            elif skip == 'Буду отсутствовать три занятия':
+                total_passes = 3
+            elif skip == 'Буду отсутствовать четыре занятия':
+                total_passes = 4
+            elif skip == 'Буду отсутствовать пять занятий':
+                total_passes = 5
+            data = {
+                'username': username,
+                'date': tomorrow
+            }
+            for i in range(total_passes):
+                self.post(PAGE_MISSING, data, json=True)
+            self.send_msg(send_id, message='Сообщение об отсутствии отправлено.',
+                          keyboard=self.get_standart_keyboard())
+            if total_passes == 1:
+                declension = 'занятие'
+            elif 1 < total_passes < 5:
+                declension = 'занятия'
+            else:
+                declension = 'занятий'
+            self.send_admin_msg(f'{username} пропускает {total_passes} {declension}')
+        except requests.exceptions.RequestException as e:
+            print('Произошла ошибка при выполнении запроса:', e)
+            self.send_msg(send_id, message='Сообщение не отправлено. \n'
+                                           'Повторите попытку.',
+                          keyboard=self.get_standart_keyboard())
+
+    def change_your_mind(self, send_id: int) -> None:
+        self.send_msg(send_id, message='Отлично! Встретимся на занятие!',
+                      keyboard=self.get_standart_keyboard())
 
     # Utility functions
     def _get_user_and_group(self, user_id: str):

@@ -198,6 +198,39 @@ class KeyboardMixin(VkKeyboard):
             event_data=json.dumps(payload)
         )
 
+    def skipping_a_class_keyboard(self):
+        keyboard = VkKeyboard()
+        keyboard.add_button(label='Пропустить', color=VkKeyboardColor.NEGATIVE)
+        keyboard.add_line()
+        keyboard.add_button(label='Я передумал', color=VkKeyboardColor.POSITIVE)
+        return keyboard
+
+    def absence_schedule_keyboard(self):
+        keyboard = VkKeyboard()
+        keyboard.add_button(label='Буду отсутствовать одно занятие', color=VkKeyboardColor.PRIMARY)
+        keyboard.add_line()
+        keyboard.add_button(label='Буду отсутствовать два занятия', color=VkKeyboardColor.PRIMARY)
+        keyboard.add_line()
+        keyboard.add_button(label='Буду отсутствовать три занятия', color=VkKeyboardColor.PRIMARY)
+        keyboard.add_line()
+        keyboard.add_button(label='Буду отсутствовать четыре занятия', color=VkKeyboardColor.PRIMARY)
+        keyboard.add_line()
+        keyboard.add_button(label='Буду отсутствовать пять занятий', color=VkKeyboardColor.PRIMARY)
+        return keyboard
+
+    # добавилась новая кнопка
+    def get_standart_keyboard(self):
+        keyboard = VkKeyboard()
+        keyboard.add_button(label='Пропустить занятие', color=VkKeyboardColor.NEGATIVE)
+        keyboard.add_line()
+        keyboard.add_button(label='🔎Помощь', color=VkKeyboardColor.PRIMARY)
+        keyboard.add_button(label='⚾️Пинг', color=VkKeyboardColor.PRIMARY)
+        keyboard.add_line()
+        keyboard.add_button(label='Пропустить занятие', color=VkKeyboardColor.NEGATIVE)
+        keyboard.add_line()
+        keyboard.add_button(label='☠️Скрыть клавиатуру', color=VkKeyboardColor.SECONDARY)
+        return keyboard
+
 
 class BaseStarter:
     """

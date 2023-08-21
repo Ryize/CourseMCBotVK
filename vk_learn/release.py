@@ -154,8 +154,8 @@ class VkBot(BaseStarter, LoginManagerMixin, APIBackendMixin, KeyboardMixin):
         if self.chat_id not in self.admins:
             return super().get_standart_keyboard()
         keyboard = VkKeyboard()
-        # keyboard.add_button(label='✅Все расписания', color=VkKeyboardColor.POSITIVE)
-        # keyboard.add_line()
+        keyboard.add_button(label='Пропустить занятие', color=VkKeyboardColor.NEGATIVE)
+        keyboard.add_line()
         keyboard.add_button(label='🔎Помощь', color=VkKeyboardColor.PRIMARY)
         keyboard.add_button(label='⚾️Пинг', color=VkKeyboardColor.PRIMARY)
         keyboard.add_line()
