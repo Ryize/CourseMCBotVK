@@ -218,7 +218,6 @@ class KeyboardMixin(VkKeyboard):
         keyboard.add_button(label='Буду отсутствовать пять занятий', color=VkKeyboardColor.PRIMARY)
         return keyboard
 
-    # добавилась новая кнопка
     def get_standart_keyboard(self):
         keyboard = VkKeyboard()
         keyboard.add_button(label='Пропустить занятие', color=VkKeyboardColor.NEGATIVE)
