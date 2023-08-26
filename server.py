@@ -259,7 +259,6 @@ class Server(VkBot):
         else:
             self.canceled_payment(event)
 
-    # В клас class Server(VkBot)
     def skipping_a_class(self, send_id: int) -> None:
         self.send_msg(send_id, message='Вы точно хотите пропустить занятие?',
                       keyboard=self.skipping_a_class_keyboard())
