@@ -30,4 +30,6 @@ python3 start.py
 
 Бот используется в качестве альтернативы веб-сайту курса (coursemc).
 
+> Помогал в разработке: [Владимир Ездаков](https://github.com/Vivat67)
+
 > Технологии, использованные в проекте: Python3, vk-api, threading, requests, json, re.
