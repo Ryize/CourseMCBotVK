@@ -216,6 +216,8 @@ class KeyboardMixin(VkKeyboard):
         keyboard.add_button(label='Буду отсутствовать четыре занятия', color=VkKeyboardColor.PRIMARY)
         keyboard.add_line()
         keyboard.add_button(label='Буду отсутствовать пять занятий', color=VkKeyboardColor.PRIMARY)
+        keyboard.add_line()
+        keyboard.add_button(label='🏠 На главную', color=VkKeyboardColor.PRIMARY)
         return keyboard
 
     def get_standart_keyboard(self):

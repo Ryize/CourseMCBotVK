@@ -2,6 +2,8 @@ import datetime
 import random
 import re
 import string
+import threading
+import time
 
 import pyshorteners
 import requests
@@ -11,7 +13,8 @@ from datetime import date
 
 from vk_learn.core.utils import FileDB
 from vk_learn.release import VkBot
-from vk_learn.config import PAGE_1, PAGE_2, PAGE_3, PAGE_4, PAGE_5, PAGE_PAYMENT, PAGE_MISSING
+from vk_learn.config import (PAGE_1, PAGE_2, PAGE_3, PAGE_4, PAGE_5,
+                             PAGE_PAYMENT, PAGE_MISSING, PAGE_REVIEW_PROJECT)
 from yookassa_worker import get_payment_url, check_payment
 
 
@@ -21,15 +24,36 @@ class Server(VkBot):
     providing the necessary functionality and allowing you to focus only on writing business logic
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, admins, *args, **kwargs):
+        self._admins = admins
+        self.__last_project_to_review_pk = 0
         super().__init__(*args, **kwargs)
+        self.admins = self._admins
+        self.follow_projects_for_review()
+
+    def follow_projects_for_review(self):
+        threading.Thread(target=self._follow_projects_for_review).start()
+
+    def _follow_projects_for_review(self):
+        while True:
+            self.command_application(self.admins[0], time_=True)
+            projects = self.get(PAGE_REVIEW_PROJECT, json=True)
+            for i in projects['reviews']:
+                if self.__last_project_to_review_pk >= i['id']:
+                    continue
+                text = f'❗️Пришёл проект на ревью!\nСсылка: {i["github"]}\nКомментарий: {i["comment"]}'
+                self.send_admin_msg(text)
+                self.__last_project_to_review_pk = i['id']
+            time.sleep(120)
 
     def command_ping(self, send_id: int) -> None:
         self.send_msg(send_id, message='Понг!')
 
     def command_schedule(self, send_id: int) -> None:
         if send_id in self.admins:
-            class_schedule = self.get(PAGE_4 + str(self.get_user_by_id(str(send_id))[0][1]) + '/', json=True)
+            class_schedule = self.get(
+                PAGE_4 + str(self.get_user_by_id(str(send_id))[0][1]) + '/',
+                json=True)
             groups = self.get(PAGE_3, json=True)
             students = self.get(PAGE_1, json=True)
             dict_with_date = {
@@ -47,11 +71,14 @@ class Server(VkBot):
                         student_string = ''
                         for student in students:
                             if student['groups'] == int(group['id']):
-                                student_string += '\nСтудент: {username}\n'.format(username=student['name'])
-                        class_schedule[key]['group'] = group['title'] + student_string
+                                student_string += '\nСтудент: {username}\n'.format(
+                                    username=student['name'])
+                        class_schedule[key]['group'] = group[
+                                                           'title'] + student_string
                         time_ = class_schedule[key]['time_lesson']
                         class_schedule[key]['time_lesson'] = time_[:-3]
-                        dict_with_date[class_schedule[key]['weekday']].append(class_schedule[key])
+                        dict_with_date[class_schedule[key]['weekday']].append(
+                            class_schedule[key])
                         break
             for day, weekday in dict_with_date.items():
                 result_message = '{day}\n\n'.format(day=day)
@@ -73,22 +100,30 @@ class Server(VkBot):
         date_key_splitter = ('weekday',)
 
         username = self.get_user_by_id(str(send_id))
-        schedules_with_html = self.post(PAGE_2 + 'get_by_username/', json=True, data={'username': username[0][1]})
-        schedules = self.__to_read_data(schedules_with_html, key_dict=key_dict, line_splitter=key_splitter,
-                                        date_key_splitter=date_key_splitter, max_size=4)
+        schedules_with_html = self.post(PAGE_2 + 'get_by_username/', json=True,
+                                        data={'username': username[0][1]})
+        schedules = self.__to_read_data(schedules_with_html, key_dict=key_dict,
+                                        line_splitter=key_splitter,
+                                        date_key_splitter=date_key_splitter,
+                                        max_size=4)
 
         if not bool(schedules):
-            self.send_msg(send_id, message='У вас нету расписания, возможно вы ещё не обучаетесь!')
+            self.send_msg(send_id,
+                          message='У вас нету расписания, возможно вы ещё не обучаетесь!')
             return
         self.send_msg(send_id, message='Последние четыре расписания\n👇👇👇👇')
-        self.send_msg(send_id, message=schedules, keyboard=self.get_standart_keyboard())
-        self.send_msg(send_id, message='Сайт с полным расписанием:\nhttps://coursemc.space')
+        self.send_msg(send_id, message=schedules,
+                      keyboard=self.get_standart_keyboard())
+        self.send_msg(send_id,
+                      message='Сайт с полным расписанием:\nhttps://coursemc.space')
 
     def command_hide_keyboard(self, send_id: int):
-        self.send_msg(send_id, message='Клавиатура скрыта!', keyboard=self.hide_keyboard())
+        self.send_msg(send_id, message='Клавиатура скрыта!',
+                      keyboard=self.hide_keyboard())
 
     def command_return_keyboard(self, send_id: int):
-        self.send_msg(send_id, message='✌️Вернул вам клавиатуру!', keyboard=self.get_standart_keyboard())
+        self.send_msg(send_id, message='✌️Вернул вам клавиатуру!',
+                      keyboard=self.get_standart_keyboard())
 
     def command_login(self, send_id: int):
         command = self.get_command_text(self._text_in_msg, self._command_args)
@@ -101,20 +136,25 @@ class Server(VkBot):
         students_data = self.get(PAGE_1, json=True)
 
         if self.authenticate(str(send_id), login):
-            self.send_msg(send_id, message='⚠️Вы уже авторизованны!', keyboard=self.get_standart_keyboard())
+            self.send_msg(send_id, message='⚠️Вы уже авторизованны!',
+                          keyboard=self.get_standart_keyboard())
             return
 
         for student_data in students_data:
-            if student_data['name'] == login and student_data['password'] == password:
+            if student_data['name'] == login and student_data[
+                'password'] == password:
                 groups = student_data['groups']
                 self.new_user(str(send_id), login, groups)
-                self.send_admin_msg(f'👤Авторизован новый пользователь: {login}, из группы: {groups}')
-                self.send_msg(send_id, message='✅Вы успешно авторизованны!', keyboard=self.get_standart_keyboard())
+                self.send_admin_msg(
+                    f'👤Авторизован новый пользователь: {login}, из группы: {groups}')
+                self.send_msg(send_id, message='✅Вы успешно авторизованны!',
+                              keyboard=self.get_standart_keyboard())
                 return
         self.send_msg(send_id, message='❌Логин или пароль не верны!')
 
     def command_wiki(self, send_id: int):
-        text_in_msg = self.get_command_text(self._text_in_msg, self._command_args)
+        text_in_msg = self.get_command_text(self._text_in_msg,
+                                            self._command_args)
         wikipedia.set_lang("ru")
         try:
             text = f'{wikipedia.summary(text_in_msg)}\n\nПолная статья: {wikipedia.page(text_in_msg).url}'
@@ -136,7 +176,8 @@ class Server(VkBot):
         self.send_msg(send_id, message=text)
 
     def command_short_url(self, send_id: int):
-        text_in_msg = self.get_command_text(self._text_in_msg, self._command_args)
+        text_in_msg = self.get_command_text(self._text_in_msg,
+                                            self._command_args)
 
         short_url = pyshorteners.Shortener().clckru.short(text_in_msg)
         if len(short_url) > 100:
@@ -157,7 +198,8 @@ class Server(VkBot):
         self.send_msg(send_id, message=f'🔒 Все данные:\n\n{data}')
 
     def command_helpop(self, send_id: int):
-        text_in_msg = self.get_command_text(self._text_in_msg, self._command_args)
+        text_in_msg = self.get_command_text(self._text_in_msg,
+                                            self._command_args)
         if not text_in_msg:
             self.send_msg(send_id,
                           message=f'⛔️ Ваше обращение не может быть пустым!')
@@ -174,12 +216,14 @@ class Server(VkBot):
         key_dict = ('id', 'title')
         groups = self.get(PAGE_3, json=True)
         text = self.__to_read_data(groups, key_dict, key_splitter)
-        self.send_msg(send_id, message=f'👨‍🏫Все группы:\n\n👉{text}В настоящий момент это все группы!')
+        self.send_msg(send_id,
+                      message=f'👨‍🏫Все группы:\n\n👉{text}В настоящий момент это все группы!')
 
     def command_notification(self, send_id: int):
         text_in_msg = self._text_in_msg.replace(self._command_args, '')
         users_groups = list(text_in_msg)[2]
-        text_in_msg = self.get_command_text(self._text_in_msg, self._command_args)
+        text_in_msg = self.get_command_text(self._text_in_msg,
+                                            self._command_args)
         try:
             int(users_groups)
         except:
@@ -188,7 +232,8 @@ class Server(VkBot):
         users = FileDB().get_by_value(value=users_groups, index=2)
         text = text_in_msg[2:]
         self.send_notification(text, send_id, users)
-        self.send_msg(send_id, message=f'✅ Сообщение в группу {int(users_groups)} успешно отправлено!')
+        self.send_msg(send_id,
+                      message=f'✅ Сообщение в группу {int(users_groups)} успешно отправлено!')
 
     def command_anotification(self, send_id: int):
         text = self.get_command_text(self._text_in_msg, self._command_args)
@@ -200,18 +245,20 @@ class Server(VkBot):
         user, group = self._get_user_and_group(str(send_id))
         text_in_msg = self._text_in_msg.replace(self._command_args, '')
         users_groups = group['id']
-        text_in_msg = self.get_command_text(self._text_in_msg, self._command_args)
+        text_in_msg = self.get_command_text(self._text_in_msg,
+                                            self._command_args)
 
         users = FileDB().get_by_value(value=str(users_groups), index=2)
         text = text_in_msg[2:]
-        self.send_notification(text_in_msg, send_id, users, f'Новое сообщение из чата [{user[0][1]}]:\n')
+        self.send_notification(text_in_msg, send_id, users,
+                               f'Новое сообщение из чата [{user[0][1]}]:\n')
         self.send_msg(send_id, message='✅ Ваше сообщение успешно отправленно!')
 
     def command_translate(self, send_id: int):
         self.send_msg(send_id,
                       message='Для перевода вашего предложения, отправьте сообщение боту (не используя команду). Пример:\n\nWhat are you doing?\nЧто делаешь?')
 
-    def command_application(self, send_id: int):
+    def command_application(self, send_id: int, time_: int = None):
         app_training = self.get(PAGE_5, json=True)
         result_app = ''
         for train in app_training:
@@ -219,11 +266,18 @@ class Server(VkBot):
                           f'Способ связи: {train["contact"]}\n' \
                           f'Почта: {train["email"]}\n' \
                           f'Заявка создана: {train["created_at"][:10]}\n\n\n'
-        self.send_msg(send_id, message=f'Необработанные заявки:\n{result_app}')
+        if time_:
+            if result_app:
+                self.send_msg(send_id,
+                              message=f'Необработанные заявки:\n{result_app}')
+        else:
+            self.send_msg(send_id,
+                          message=f'Необработанные заявки:\n{result_app}')
 
     def command_payment(self, send_id: int):
         username = self.get_user_by_id(str(send_id))[0][1]
-        amount = self.get(f'{PAGE_PAYMENT}{username}/', json=True).get('amount')
+        amount = self.get(f'{PAGE_PAYMENT}{username}/', json=True).get(
+            'amount')
         if not amount:
             self.send_msg(send_id, message=f'✅ Вы уже всё оплатили!')
             return
@@ -239,7 +293,8 @@ class Server(VkBot):
     def check_payment(self, event):
         send_id = event.object.peer_id
         username = self.get_user_by_id(str(send_id))[0][1]
-        amount = self.get(f'{PAGE_PAYMENT}{username}/', json=True).get('amount')
+        amount = self.get(f'{PAGE_PAYMENT}{username}/', json=True).get(
+            'amount')
         with open('payments.txt') as file:
             text = file.read().split('\n')
         counter = 0
@@ -247,7 +302,8 @@ class Server(VkBot):
             if counter == 7:
                 continue
             payment_information = i.split('/')
-            if payment_information[0] and int(payment_information[0]) == send_id:
+            if payment_information[0] and int(
+                    payment_information[0]) == send_id:
                 counter += 1
                 if check_payment(payment_information[1], amount):
                     self.success_payment(event)
@@ -266,8 +322,7 @@ class Server(VkBot):
     def skip(self, send_id: int) -> None:
         self.send_msg(send_id,
                       message='Выберите время отсутствия.\n'
-                              'Либо введите команду: /Пропущу x\n'
-                              'Пример: /Пропущу 7',
+                              'Либо введите кол-во пропускаемых уроков (число)\n',
                       keyboard=self.absence_schedule_keyboard())
 
     def absence_schedule(self, send_id: int) -> None:
@@ -277,10 +332,9 @@ class Server(VkBot):
             tomorrow = current_date + datetime.timedelta(days=1)
             # Приведение даты к нужному формату
             tomorrow = tomorrow.strftime('%Y-%m-%d')
-            skip = self._text_in_msg
-            match = re.search(r'/[Пп]ропущу\s*(\d+)', skip)
-            if match:
-                total_passes = int(match.group(1))
+            skip = self.text_in_msg
+            if skip.isdigit():
+                total_passes = int(skip)
             if skip == 'Буду отсутствовать одно занятие':
                 total_passes = 1
             elif skip == 'Буду отсутствовать два занятия':
@@ -297,7 +351,8 @@ class Server(VkBot):
             }
             for i in range(total_passes):
                 self.post(PAGE_MISSING, data, json=True)
-            self.send_msg(send_id, message='Сообщение об отсутствии отправлено.',
+            self.send_msg(send_id,
+                          message='Сообщение об отсутствии отправлено.',
                           keyboard=self.get_standart_keyboard())
             if total_passes == 1:
                 declension = 'занятие'
@@ -305,7 +360,8 @@ class Server(VkBot):
                 declension = 'занятия'
             else:
                 declension = 'занятий'
-            self.send_admin_msg(f'{username} пропускает {total_passes} {declension}')
+            self.send_admin_msg(
+                f'{username} пропускает {total_passes} {declension}')
         except requests.exceptions.RequestException as e:
             print('Произошла ошибка при выполнении запроса:', e)
             self.send_msg(send_id, message='Сообщение не отправлено. \n'
@@ -324,8 +380,11 @@ class Server(VkBot):
             if group['id'] == int(user[0][2]):
                 return user, group
 
-    def __to_read_data(self, entry_list: list, key_dict: tuple = (), line_splitter: str = '\n',
-                       exclude_key_splitter: tuple = (), date_key_splitter: tuple = (), max_size: int = None) -> str:
+    def __to_read_data(self, entry_list: list, key_dict: tuple = (),
+                       line_splitter: str = '\n',
+                       exclude_key_splitter: tuple = (),
+                       date_key_splitter: tuple = (),
+                       max_size: int = None) -> str:
         schedules_str = ''
         entry_list.reverse()
         if max_size:
@@ -338,7 +397,8 @@ class Server(VkBot):
                 elif j not in exclude_key_splitter and j not in date_key_splitter:
                     schedules_str += self.remove_html(str(value[j])) + '\n👉 '
                 elif j in date_key_splitter:
-                    str_fix = list(date.fromisoformat(value[j]).strftime("%A, %d. %B %Y"))
+                    str_fix = list(
+                        date.fromisoformat(value[j]).strftime("%A, %d. %B %Y"))
                     str_fix[0] = str_fix[0].upper()
                     schedules_str += ''.join(str_fix) + '\n👉 '
                 else:

@@ -127,11 +127,19 @@ class VkBot(BaseStarter, LoginManagerMixin, APIBackendMixin, KeyboardMixin):
             # Пришло новое сообщение
             if event.type == VkBotEventType.MESSAGE_NEW:
                 send_id = event.object.peer_id
+                _text_in_msg = event.object.text
                 if self.debug:
                     if send_id in self.admins:
                         th = Thread(target=self._command_starter, args=(event,))
                         th.start()
                 else:
+                    if _text_in_msg.isdigit():
+                        self.text_in_msg = _text_in_msg
+                        self.__send_id = send_id
+                        self.chat_id = send_id
+                        th = Thread(target=self.absence_schedule, args=(send_id,))
+                        th.start()
+                        return
                     try:
                         th = Thread(target=self._command_starter, args=(event,))
                         th.start()

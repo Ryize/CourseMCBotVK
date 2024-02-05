@@ -1,6 +1,5 @@
 from vk_learn.config import VK_T, URL, STANDART_HEAD
 
-
 GROUP_ID = 207629753
 VK_ID_MATVEY_CHEKASHOV = 513239285
 VK_ID_ALEXANDRA_TITARENKO = 655080669
@@ -8,9 +7,9 @@ VK_ID_ALEXANDRA_TITARENKO = 655080669
 if __name__ == '__main__':
     from server import Server
 
-    server = Server(api_token=VK_T, group_id=GROUP_ID, url=URL, standart_head=STANDART_HEAD)
-
-    server.admins = [VK_ID_MATVEY_CHEKASHOV, VK_ID_ALEXANDRA_TITARENKO]
+    server = Server(admins=(VK_ID_MATVEY_CHEKASHOV,),
+                    api_token=VK_T, group_id=GROUP_ID, url=URL,
+                    standart_head=STANDART_HEAD)
 
     COMMANDS = {
         '/help': {
@@ -134,13 +133,9 @@ if __name__ == '__main__':
             'command': server.absence_schedule,
             'comment': 'График отсутствия',
         },
-        '/Пропущу *args *auth': {
-            'command': server.absence_schedule,
-            'comment': 'График отсутствия',
-        },
-        '/пропущу *args *auth': {
-            'command': server.absence_schedule,
-            'comment': 'График отсутствия',
+        '🏠 На главную *nshow': {
+            'command': server.command_return_keyboard,
+            'comment': 'Вернуть клавиатуру',
         },
     }
     while True:
